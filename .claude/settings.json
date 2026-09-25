@@ -1,0 +1,28 @@
+{
+  "enabledPlugins": {
+    "finance@knowledge-work-plugins": true,
+    "legal@knowledge-work-plugins": true,
+    "marketing-skills@marketingskills": true,
+    "social-media-skills@social-media-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "knowledge-work-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/knowledge-work-plugins"
+      }
+    },
+    "marketingskills": {
+      "source": {
+        "source": "github",
+        "repo": "coreyhaines31/marketingskills"
+      }
+    },
+    "social-media-skills": {
+      "source": {
+        "source": "github",
+        "repo": "charlie947/social-media-skills"
+      }
+    }
+  }
+}
