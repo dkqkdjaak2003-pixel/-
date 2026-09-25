@@ -1,6 +1,6 @@
 ---
 name: kids-story-video
-description: Plan and produce short children's fairy-tale videos (YouTube Shorts / Reels / TikTok) end to end — trend research, original story, scene script, image/video prompts, Higgsfield generation, and a publish checklist. Use when the user asks for a kids' story video, fairy tale short, bedtime story video, or 동화 영상.
+description: Plan and produce short children's fairy-tale videos (YouTube Shorts / Reels / TikTok) end to end — brief, original story, scene script, image/video prompts, Higgsfield generation, and a publish checklist. Use when the user asks for a kids' story video, fairy tale short, bedtime story video, or 동화 영상.
 ---
 
 # Kids' story video pipeline
