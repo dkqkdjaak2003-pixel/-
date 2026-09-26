@@ -59,8 +59,18 @@ Write `publish.md`:
 - Caption: **first line = disclosure** (see compliance), then hook line, 3–5 hashtags, CTA.
 - Link placement: Instagram → profile link / link-in-bio page / DM automation; YouTube → pinned comment + description top; TikTok → per its affiliate/link rules.
 - AI disclosure toggles: Instagram "AI info", YouTube "altered or synthetic content", TikTok AI-generated label — when footage mode B/C shows realistic people or scenes.
-- Posting: TikTok can go through Higgsfield `tiktok_prepare_publish` (only after user confirms). Instagram API posting needs a professional account and Graph API app; otherwise upload manually.
-- Log to `shorts/log.csv`: date, product id, platform, link, hook used — for later comparing which hooks/products perform.
+- Save the final caption to `caption.txt` (first line = disclosure).
+- **Instagram** (needs `IG_ACCESS_TOKEN`, `IG_USER_ID`; setup in `references/instagram-setup.md`):
+  ```
+  S=.claude/skills/shopping-shorts/scripts
+  python3 $S/instagram_publish.py limit                         # quota left
+  python3 $S/instagram_publish.py reel shorts/<dir>/final.mp4 --caption-file shorts/<dir>/caption.txt --dry-run
+  python3 $S/instagram_publish.py reel shorts/<dir>/final.mp4 --caption-file shorts/<dir>/caption.txt --thumb-offset 1.5
+  ```
+  Always show the dry-run to the user and get an explicit "올려" before the real run; pass `--yes` only after that. The script refuses captions whose first line lacks a disclosure, uploads the file directly (resumable upload, no public hosting needed), waits for processing, publishes, and appends to `shorts/log.csv`.
+  Token expires 60 days after issue/refresh: run `instagram_publish.py refresh` at least monthly (token must be ≥24h old).
+- TikTok can go through Higgsfield `tiktok_prepare_publish` (only after user confirms).
+- `shorts/log.csv` gets a row per Instagram post automatically; add product id and hook used for other platforms by hand — for later comparing which hooks/products perform.
 
 ## Automation boundaries
 Automated: sourcing calls, scoring, scripts, prompts, generation, assembly, captions, logs. Human-confirmed: product pick, script, credit spend, publishing. Keep variation per video (different hook, footage, voice line) — template clones are not monetizable on YouTube and look spammy everywhere.

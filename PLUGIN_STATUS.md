@@ -35,4 +35,5 @@
 - `scripts/coupang_partners.py`: 쿠팡 파트너스 API(검색·골드박스·카테고리 베스트·딥링크), 표준 라이브러리만 사용, 검색 결과 6시간 캐시
 - `scripts/assemble.py`: 장면 클립 → 1080×1920 합성, 자막·광고 표기 문구 번인 (ffmpeg + libass + 한글 폰트 필요)
 - `references/compliance.md`: 공정위 추천·보증 지침, 쿠팡 파트너스 표기, YouTube 정책, Instagram API 제한 출처
-- 사용자가 준비할 것: 쿠팡 파트너스 최종 승인 후 API 키(`COUPANG_ACCESS_KEY`, `COUPANG_SECRET_KEY` 환경변수), ffmpeg 설치
+- `scripts/instagram_publish.py`: 인스타그램 릴스 자동 게시(파일 직접 업로드, 처리 대기, 게시, 로그), 광고 표기 없는 캡션은 차단, 토큰 갱신·할당량 조회. 설정법 `references/instagram-setup.md`
+- 사용자가 준비할 것: 인스타 프로페셔널 계정 + Meta 앱 토큰(`IG_ACCESS_TOKEN`, `IG_USER_ID`), 쿠팡 파트너스 최종 승인 후 API 키(`COUPANG_ACCESS_KEY`, `COUPANG_SECRET_KEY` 환경변수), ffmpeg 설치

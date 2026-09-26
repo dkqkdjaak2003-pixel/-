@@ -32,7 +32,14 @@ Put it on the first caption line AND on screen for the whole video (assemble.py 
 ## 4. Instagram API publishing
 - Professional (Business/Creator) account required; Reels via `media_type=REELS`.
 - Limit: 100 API-published posts per 24h moving window; check `GET /<IG_ID>/content_publishing_limit`.
-- Source: https://developers.facebook.com/docs/instagram-platform/content-publishing/
+- Flow: `POST /<IG_ID>/media` (media_type=REELS) → upload → poll container `status_code` until FINISHED → `POST /<IG_ID>/media_publish`.
+- Resumable upload: container with `upload_type=resumable`, then POST the file to `https://rupload.facebook.com/ig-api-upload/<version>/<container-id>` with `offset` and `file_size` headers.
+- Reels via API: MP4/MOV, up to 15 min and 300 MB (secondary source).
+- Long-lived token: refresh with `GET https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token`; token must be ≥24h old and not expired; refreshed tokens last 60 days.
+- Sources: https://developers.facebook.com/docs/instagram-platform/content-publishing/ ,
+  https://developers.facebook.com/docs/instagram-platform/content-publishing/resumable-uploads/ ,
+  https://developers.facebook.com/docs/instagram-platform/reference/refresh_access_token/ ,
+  https://adaptlypost.com/blog/instagram-reels-api-max-length-file-size
 
 ## 5. Content honesty (표시광고법 기본 원칙)
 - No fabricated reviews, ratings, rankings, discounts or usage results.
