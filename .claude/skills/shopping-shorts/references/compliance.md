@@ -41,7 +41,17 @@ Put it on the first caption line AND on screen for the whole video (assemble.py 
   https://developers.facebook.com/docs/instagram-platform/reference/refresh_access_token/ ,
   https://adaptlypost.com/blog/instagram-reels-api-max-length-file-size
 
-## 5. Content honesty (표시광고법 기본 원칙)
+## 5. YouTube Data API uploads
+- Un-audited API projects created after 2020-07-28: every `videos.insert` upload is locked private until the project passes the compliance audit.
+  Sources: https://developers.google.com/youtube/v3/docs/videos/insert , https://github.com/porjo/youtubeuploader/issues/86
+- `status.containsSyntheticMedia` (added 2024-10-30) declares altered/synthetic content; `paidProductPlacementDetails.hasPaidProductPlacement` marks paid promotion.
+  Sources: https://developers.google.com/youtube/v3/revision_history , https://developers.google.com/youtube/v3/docs/videos
+- Square/vertical videos up to 3 min uploaded from 2024-10-15 are Shorts. Source: https://support.google.com/youtube/answer/15424877
+- Links in Shorts descriptions/comments are not clickable since 2023-08-31; channel profile links are. Source: https://www.tubefilter.com/2023/08/10/youtube-shorts-comments-spam/
+- OAuth consent screen in "Testing" (external users): refresh tokens expire after 7 days. Source: https://support.google.com/cloud/answer/15549945
+- Upload quota changed in 2025-2026 (secondary sources report a separate upload bucket); check the Cloud console quota page and https://developers.google.com/youtube/v3/revision_history
+
+## 6. Content honesty (표시광고법 기본 원칙)
 - No fabricated reviews, ratings, rankings, discounts or usage results.
 - No health/medical efficacy claims for foods, cosmetics, or devices without substantiation.
 - Do not reuse other creators' videos or copy their scripts; use own footage, licensed assets, or generated footage.

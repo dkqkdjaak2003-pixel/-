@@ -8,7 +8,7 @@ which loads the project skill `shopping-shorts` and the user's Higgsfield MCP.
 Usage (from the repository root):
   python3 autopilot/autopilot.py run              # one full cycle (cron this)
   python3 autopilot/autopilot.py status           # jobs and their stage
-  python3 autopilot/autopilot.py approve <job>    # review mode: publish a checked job
+  python3 autopilot/autopilot.py approve <job>    # review mode: publish a checked job (all platforms)
   python3 autopilot/autopilot.py reject <job> [reason]
   python3 autopilot/autopilot.py report           # pull insights + commission, update learnings
   python3 autopilot/autopilot.py linkpage         # rebuild the link-in-bio page
@@ -31,6 +31,7 @@ SCRIPTS = os.path.join(ROOT, ".claude", "skills", "shopping-shorts", "scripts")
 sys.path.insert(0, SCRIPTS)
 import coupang_partners as cp  # noqa: E402
 import instagram_publish as ig  # noqa: E402
+import youtube_publish as yt  # noqa: E402
 
 SHORTS = os.path.join(ROOT, "shorts")
 CONFIG = os.path.join(ROOT, "autopilot", "config.json")
@@ -205,6 +206,8 @@ def script(cfg, job):
     cap = os.path.join(job_dir(job), "caption.txt")
     if not spec or not spec.get("scenes") or not os.path.exists(cap):
         raise RuntimeError("script.json / caption.txt not produced")
+    if "youtube" in platforms(cfg) and not os.path.exists(os.path.join(job_dir(job), "youtube.json")):
+        raise RuntimeError("youtube.json not produced")
     spec["disclosure"] = cfg["disclosure"]
     spec.setdefault("font", cfg.get("font", "Noto Sans KR"))
     save(os.path.join(job_dir(job), "script.json"), spec)
@@ -277,6 +280,22 @@ def qa(cfg, job):
             problems.append(f"금지 표현: {w}")
     if re.search(r"https?://", caption):
         problems.append("캡션에 URL (인스타에선 클릭 안 됨; 프로필 링크 번호로 안내)")
+    if "youtube" in platforms(cfg):
+        meta = load(os.path.join(d, "youtube.json"))
+        if not meta:
+            problems.append("youtube.json 없음")
+        else:
+            title, desc = meta.get("title", ""), meta.get("description", "")
+            if not 1 <= len(title) <= 100 or "<" in title or ">" in title:
+                problems.append("유튜브 제목 길이/문자 오류")
+            dfirst = desc.strip().splitlines()[0] if desc.strip() else ""
+            if cfg["disclosure"] not in dfirst:
+                problems.append("유튜브 설명 첫 줄에 광고 표기 없음")
+            for w in cfg.get("banned_phrases", []):
+                if w in title + desc:
+                    problems.append(f"유튜브 금지 표현: {w}")
+            if info_dur(video) > 180:
+                problems.append("유튜브 쇼츠는 3분 이하")
     job["qa"] = problems
     if problems:
         set_stage(job, "failed", "QA: " + "; ".join(problems))
@@ -285,37 +304,88 @@ def qa(cfg, job):
     set_stage(job, "checked")
 
 
+def platforms(cfg):
+    return cfg.get("platforms", ["instagram"])
+
+
+def info_dur(video):
+    return (probe(video) or {}).get("dur", 0) if os.path.exists(video) else 0
+
+
 def posted_today():
     today = now().date().isoformat()
-    return sum(1 for j in jobs() if j.get("stage") == "published"
-               and (j.get("published_at") or "").startswith(today))
+    return sum(1 for j in jobs() if (j.get("published_at") or "").startswith(today))
 
 
 def publish(cfg, job, approved=False):
-    if cfg["publish_mode"] != "auto" and not approved:
+    """Post to every platform in cfg["platforms"] not yet done for this job.
+
+    Each platform is recorded as soon as it succeeds, so a failure on one is
+    retried on the next run without re-posting the others."""
+    if approved:
+        job["approved"] = True
+        save_job(job)
+    if cfg["publish_mode"] != "auto" and not job.get("approved"):
         set_stage(job, "awaiting_approval")
         notify(cfg, f"{job['id']} 검수 대기: shorts/{job['id']}/final.mp4 확인 후 "
                     f"`python3 autopilot/autopilot.py approve {job['id']}`")
         return
-    if posted_today() >= cfg["max_posts_per_day"]:
+    todo = [pf for pf in platforms(cfg) if pf not in job.get("posts", {})]
+    if todo and not job.get("posts") and posted_today() >= cfg["max_posts_per_day"]:
         log(f"{job['id']}: daily cap reached, will post next run")
         return
     d = job_dir(job)
-    caption = open(os.path.join(d, "caption.txt"), encoding="utf-8").read()
-    res = ig.publish(caption, video=os.path.join(d, "final.mp4"),
-                     thumb_offset=load(os.path.join(d, "script.json")).get("thumb_offset"))
-    ig.append_log(os.path.join(SHORTS, "log.csv"), res, os.path.join(d, "final.mp4"), caption)
-    job["instagram"] = res
-    job["published_at"] = now().isoformat(timespec="seconds")
+    video = os.path.join(d, "final.mp4")
+    errors = []
+    for pf in todo:
+        try:
+            if pf == "instagram":
+                caption = open(os.path.join(d, "caption.txt"), encoding="utf-8").read()
+                res = ig.publish(caption, video=video,
+                                 thumb_offset=load(os.path.join(d, "script.json")).get("thumb_offset"))
+                ig.append_log(os.path.join(SHORTS, "log.csv"), res, video, caption)
+                res["url"] = res.get("permalink", "")
+            elif pf == "youtube":
+                yc = cfg.get("youtube", {})
+                meta = load(os.path.join(d, "youtube.json"))
+                meta["title"] = (yc.get("title_prefix", "") + meta["title"])[:100]
+                meta.setdefault("categoryId", yc.get("category_id", "26"))
+                res = yt.upload(video, meta, privacy=yc.get("privacy", "public"),
+                                synthetic=cfg["footage_mode"] == "higgsfield" or yc.get("synthetic", False),
+                                paid_promotion=yc.get("paid_promotion", True))
+                if res.get("privacy") != yc.get("privacy", "public"):
+                    notify(cfg, f"{job['id']} 유튜브 공개 상태가 {res.get('privacy')} 입니다 "
+                                "(API 프로젝트 검수 전이면 비공개로 잠김)")
+            else:
+                raise RuntimeError(f"unknown platform {pf}")
+        except (Exception, SystemExit) as e:  # noqa: BLE001 - keep other platforms going
+            errors.append(f"{pf}: {e}")
+            log(f"{job['id']}: {pf} failed: {e}")
+            continue
+        job.setdefault("posts", {})[pf] = {**res, "at": now().isoformat(timespec="seconds")}
+        job.setdefault("published_at", job["posts"][pf]["at"])
+        save_job(job)
+        log(f"{job['id']}: posted to {pf} {res.get('url', '')}")
+        add_link(cfg, job)
+    if errors:
+        raise RuntimeError("; ".join(errors))
+    urls = " ".join(v.get("url", "") for v in job.get("posts", {}).values())
+    set_stage(job, "published", urls)
+    notify(cfg, f"{job['id']} 게시 완료 {urls}")
+
+
+def add_link(cfg, job):
+    if job.get("link_added"):
+        return
     links = load(os.path.join(SHORTS, "links.json"), [])
     p = job["product"]
     links.append({"no": p["link_no"], "name": p.get("productName"), "url": p["shortenUrl"],
                   "image": p.get("productImage"), "date": now().date().isoformat(),
                   "job": job["id"]})
     save(os.path.join(SHORTS, "links.json"), links)
-    set_stage(job, "published", res.get("permalink", ""))
+    job["link_added"] = True
+    save_job(job)
     linkpage(cfg)
-    notify(cfg, f"{job['id']} 게시 완료 {res.get('permalink', '')}")
 
 
 # ---------- link-in-bio page ----------
@@ -350,10 +420,23 @@ def linkpage(cfg):
 
 def report(cfg):
     rows = []
-    for j in jobs():
-        if j.get("stage") != "published":
-            continue
-        m = ig.insights(j["instagram"]["id"], cfg.get("insight_metrics", ig.DEFAULT_METRICS))
+    posted = [j for j in jobs() if j.get("posts")]
+    yt_ids = [j["posts"]["youtube"]["id"] for j in posted if "youtube" in j["posts"]]
+    yt_stats = {}
+    if yt_ids:
+        try:
+            for i in range(0, len(yt_ids), 50):
+                yt_stats.update(yt.stats(yt_ids[i:i + 50]))
+        except (Exception, SystemExit) as e:  # noqa: BLE001
+            log(f"youtube stats failed: {e}")
+    for j in posted:
+        m = {}
+        if "instagram" in j["posts"]:
+            m.update({f"ig_{k}": v for k, v in ig.insights(
+                j["posts"]["instagram"]["id"], cfg.get("insight_metrics", ig.DEFAULT_METRICS)).items()})
+        if "youtube" in j["posts"]:
+            m.update({f"yt_{k}": v for k, v in yt_stats.get(j["posts"]["youtube"]["id"], {}).items()})
+        m["views"] = (m.get("ig_views") or 0) + (m.get("yt_views") or 0)
         j["metrics"] = {**m, "fetched_at": now().isoformat(timespec="seconds")}
         save_job(j)
         spec = load(os.path.join(job_dir(j), "script.json")) or {}
@@ -371,11 +454,12 @@ def report(cfg):
         log(f"commission report failed: {e}")
     save(os.path.join(SHORTS, "performance.json"), rows)
 
-    key = lambda r: (r.get("views") or r.get("reach") or 0)  # noqa: E731
+    key = lambda r: r.get("views") or 0  # noqa: E731
     rows.sort(key=key, reverse=True)
     lines = ["# 성과 요약 (자동 생성)", f"기준일 {end.isoformat()}, 게시물 {len(rows)}개", ""]
     fmt = lambda r: (f"- {r['hook']} | {r['niche']}/{r['category']} | {r['price']}원 | "  # noqa: E731
-                     f"조회 {r.get('views')} 도달 {r.get('reach')} 저장 {r.get('saved')} 공유 {r.get('shares')}")
+                     f"합산 조회 {r.get('views')} (인스타 {r.get('ig_views')}, 유튜브 {r.get('yt_views')}) "
+                     f"인스타 저장 {r.get('ig_saved')} 공유 {r.get('ig_shares')} 유튜브 좋아요 {r.get('yt_likes')}")
     lines += ["## 잘 된 영상 (훅/카테고리 참고)"] + [fmt(r) for r in rows[:5]]
     lines += ["", "## 안 된 영상 (피할 패턴)"] + [fmt(r) for r in rows[-5:][::-1] if rows[:5].count(r) == 0]
     if comm is not None:
@@ -400,7 +484,7 @@ def advance(cfg, job):
             assemble(cfg, job)
         if job["stage"] == "assembled":
             qa(cfg, job)
-        if job["stage"] == "checked":
+        if job["stage"] == "checked" or (job["stage"] == "awaiting_approval" and job.get("approved")):
             publish(cfg, job)
     except Exception as e:  # noqa: BLE001 - one job failing must not stop the run
         job["retries"] = job.get("retries", 0) + 1
@@ -422,7 +506,8 @@ def run(cfg):
         sys.exit("another run is in progress (shorts/.lock)")
     open(lock, "w").close()
     try:
-        pending = [j for j in jobs() if j["stage"] in ACTIVE]
+        pending = [j for j in jobs() if j["stage"] in ACTIVE
+                   or (j["stage"] == "awaiting_approval" and j.get("approved"))]
         for i in range(max(0, cfg["videos_per_run"] - len(pending))):
             jid = now().strftime("%Y%m%d%H%M") + chr(ord("a") + i)
             job = {"id": jid, "stage": "new", "created": now().isoformat(timespec="seconds")}
@@ -452,12 +537,15 @@ def main():
     elif cmd == "status":
         for j in jobs():
             p = j.get("product", {})
-            print(f"{j['id']:14} {j['stage']:18} {p.get('link_no', ''):>4} {(p.get('productName') or '')[:40]}")
+            done = ",".join(j.get("posts", {}))
+            print(f"{j['id']:14} {j['stage']:18} {p.get('link_no', ''):>4} {done:18} {(p.get('productName') or '')[:36]}")
     elif cmd == "approve":
         j = find(sys.argv[2])
         if j["stage"] != "awaiting_approval":
             sys.exit(f"{j['id']} is {j['stage']}, not awaiting_approval")
-        publish(cfg, j, approved=True)
+        j["approved"] = True
+        save_job(j)
+        advance(cfg, j)
     elif cmd == "reject":
         j = find(sys.argv[2])
         set_stage(j, "rejected", " ".join(sys.argv[3:]))
@@ -493,7 +581,11 @@ Write three files:
 2. caption.txt — line 1 exactly: {disclosure}
    then a one-line hook, 2-3 lines of plain benefit, "구매 링크: 프로필 링크 → {link_no}번", 3-5 hashtags.
    No URLs.
-3. shotlist.md — the same scenes as a filming list for a phone camera (9:16), in Korean."""
+3. shotlist.md — the same scenes as a filming list for a phone camera (9:16), in Korean.
+4. youtube.json — {{"title": "<Korean, ≤60 chars, curiosity + product type, no clickbait claims>",
+   "description": "<line 1 exactly: {disclosure}\nthen 2-3 lines of plain benefit,
+   구매 링크: 채널 프로필 링크 → {link_no}번, 3 hashtags incl. #shorts>", "tags": ["<5-8 Korean tags>"]}}
+   No URLs (links in Shorts descriptions are not clickable)."""
 
 FOOTAGE_PROMPT = """You are running unattended inside a shopping-shorts job folder. Follow the project skill
 `shopping-shorts` stage 4 option B and stage 5.

@@ -44,3 +44,4 @@
 - `autopilot/config.example.json`, `.env.example`, `run_daily.sh`, `README.md`(설치·cron·운영 모드)
 - 링크 페이지 `docs/index.html` 자동 생성 (GitHub Pages로 배포해 프로필 링크로 사용)
 - 쿠팡 스크립트에 subId·리포트 조회, 인스타 스크립트에 인사이트 조회 추가
+- 유튜브 쇼츠 자동 업로드 `scripts/youtube_publish.py` (OAuth 데스크톱 인증, 재개 가능 업로드, 유료 프로모션·AI 합성 표시, 통계 조회), 오토파일럿에 플랫폼별 게시·재시도·성과 합산 연동. 설정법 `references/youtube-setup.md`

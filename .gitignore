@@ -4,3 +4,4 @@ __pycache__/
 autopilot/.env
 autopilot/config.json
 shorts/
+client_secret*.json

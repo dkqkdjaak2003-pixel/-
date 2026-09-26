@@ -69,6 +69,12 @@ Write `publish.md`:
   ```
   Always show the dry-run to the user and get an explicit "올려" before the real run; pass `--yes` only after that. The script refuses captions whose first line lacks a disclosure, uploads the file directly (resumable upload, no public hosting needed), waits for processing, publishes, and appends to `shorts/log.csv`.
   Token expires 60 days after issue/refresh: run `instagram_publish.py refresh` at least monthly (token must be ≥24h old).
+- **YouTube Shorts** (setup in `references/youtube-setup.md`; save title/description/tags to `youtube.json`, description line 1 = disclosure, no URLs):
+  ```
+  python3 $S/youtube_publish.py upload shorts/<dir>/final.mp4 --meta shorts/<dir>/youtube.json --dry-run
+  python3 $S/youtube_publish.py upload shorts/<dir>/final.mp4 --meta shorts/<dir>/youtube.json [--synthetic]
+  ```
+  Same confirmation rule as Instagram. `--synthetic` when footage is realistic AI-generated. Marks paid promotion by default. Uploads from an un-audited API project are locked private.
 - TikTok can go through Higgsfield `tiktok_prepare_publish` (only after user confirms).
 - `shorts/log.csv` gets a row per Instagram post automatically; add product id and hook used for other platforms by hand — for later comparing which hooks/products perform.
 

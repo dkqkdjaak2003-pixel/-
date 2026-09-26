@@ -13,6 +13,14 @@
   "max_posts_per_day": 2,
   "footage_mode": "higgsfield",
   "publish_mode": "review",
+  "platforms": ["instagram", "youtube"],
+  "youtube": {
+    "privacy": "public",
+    "category_id": "26",
+    "title_prefix": "[광고] ",
+    "paid_promotion": true,
+    "synthetic": false
+  },
 
   "disclosure": "[광고] 이 게시물은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.",
   "banned_phrases": ["최저가", "1위", "완치", "치료", "100%", "부작용 없", "효과 보장", "무조건"],
