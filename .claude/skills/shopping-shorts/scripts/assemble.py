@@ -8,7 +8,10 @@ Reads shorts/<slug>/script.json:
    "voice": "assets/voice.mp3",   # optional
    "music": "assets/music.mp3",   # optional, mixed at -18 dB
    "disclosure": "쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다",
-   "font": "Noto Sans KR"}      # optional; any installed Korean font
+   "font": "Noto Sans KR",      # optional; any installed Korean font
+   "disclosure_font": "..."}    # optional; defaults to font
+A scene may add "big": "1" to show a large centered number (CTA card).
+A scene clip may be "color:#2350FF" to render a solid background instead of a file.
 Writes shorts/<slug>/final.mp4 and captions.ass.
 The disclosure line is kept at the top of the screen for the whole video.
 """
@@ -27,7 +30,8 @@ PlayResY: 1920
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV
 Style: Caption,{font},72,&H00FFFFFF,&H00000000,&H80000000,1,1,5,0,2,60,60,420
-Style: Disclosure,{font},34,&H00FFFFFF,&H00000000,&H80000000,0,3,2,0,8,40,40,90
+Style: Disclosure,{dfont},34,&H00FFFFFF,&H00000000,&H80000000,0,3,2,0,8,40,40,90
+Style: BigNum,{font},560,&H003BD4FF,&H00000000,&H64000000,0,1,0,12,5,40,40,0
 
 [Events]
 Format: Layer, Start, End, Style, Text
@@ -66,19 +70,24 @@ def main():
     for i, sc in enumerate(spec["scenes"], 1):
         out = os.path.join(work, f"part{i:02}.mp4")
         dur = float(sc["duration"])
-        run(["ffmpeg", "-y", "-i", os.path.join(root, sc["clip"]), "-t", str(dur),
+        src = (["-f", "lavfi", "-i", f"color=c=0x{sc['clip'][7:].lstrip('#')}:s=1080x1920:r=30"]
+               if sc["clip"].startswith("color:") else ["-i", os.path.join(root, sc["clip"])])
+        run(["ffmpeg", "-y", *src, "-t", str(dur),
              "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30",
              "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", out])
         parts.append(out)
         if sc.get("caption"):
             events.append(f"Dialogue: 0,{ts(t)},{ts(t + dur)},Caption,{ass_text(sc['caption'])}")
+        if sc.get("big"):
+            events.append(f"Dialogue: 0,{ts(t)},{ts(t + dur)},BigNum,{ass_text(sc['big'])}")
         t += dur
 
     if spec.get("disclosure"):
         events.append(f"Dialogue: 1,{ts(0)},{ts(t)},Disclosure,{ass_text(spec['disclosure'])}")
     ass_path = os.path.abspath(os.path.join(root, "captions.ass"))
     with open(ass_path, "w", encoding="utf-8") as f:
-        f.write(ASS_HEADER.format(font=spec.get("font", "Noto Sans KR")) + "\n".join(events) + "\n")
+        f.write(ASS_HEADER.format(font=spec.get("font", "Noto Sans KR"),
+                                   dfont=spec.get("disclosure_font", spec.get("font", "Noto Sans KR"))) + "\n".join(events) + "\n")
     lst = os.path.join(work, "list.txt")
     with open(lst, "w") as f:
         f.writelines(f"file '{os.path.abspath(p)}'\n" for p in parts)
