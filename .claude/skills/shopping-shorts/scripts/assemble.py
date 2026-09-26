@@ -47,7 +47,7 @@ def ass_text(text):
 
 
 def run(cmd):
-    print("+", " ".join(cmd))
+    cmd = [cmd[0], "-hide_banner", "-loglevel", "error"] + cmd[1:]
     subprocess.run(cmd, check=True)
 
 

@@ -72,5 +72,8 @@ Write `publish.md`:
 - TikTok can go through Higgsfield `tiktok_prepare_publish` (only after user confirms).
 - `shorts/log.csv` gets a row per Instagram post automatically; add product id and hook used for other platforms by hand — for later comparing which hooks/products perform.
 
+## Unattended mode
+`autopilot/autopilot.py` runs this pipeline on a schedule (see `autopilot/README.md`). When invoked by it through `claude -p`, do exactly the file-writing task in the prompt and nothing else: no questions, no confirmations, no extra files.
+
 ## Automation boundaries
 Automated: sourcing calls, scoring, scripts, prompts, generation, assembly, captions, logs. Human-confirmed: product pick, script, credit spend, publishing. Keep variation per video (different hook, footage, voice line) — template clones are not monetizable on YouTube and look spammy everywhere.

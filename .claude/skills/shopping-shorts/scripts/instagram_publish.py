@@ -13,6 +13,7 @@ Usage:
   instagram_publish.py refresh                  # extend token another 60 days
   instagram_publish.py reel shorts/<dir>/final.mp4 --caption-file shorts/<dir>/caption.txt [--dry-run]
   instagram_publish.py reel --video-url https://.../final.mp4 --caption "..."
+  instagram_publish.py insights <media_id> [--metrics views,reach,likes,comments,shares,saved]
 
 Publishing is public and cannot be undone by this script. `reel` refuses to run
 unless the caption's first line carries an ad disclosure, and asks for
@@ -33,6 +34,7 @@ VERSION = os.environ.get("IG_API_VERSION", "v23.0")
 GRAPH = os.environ.get("IG_GRAPH_BASE", "https://graph.instagram.com").rstrip("/")
 DISCLOSURE_WORDS = ("광고", "수수료", "협찬", "파트너스")
 MAX_BYTES = 300 * 1024 * 1024
+DEFAULT_METRICS = ("views", "reach", "likes", "comments", "shares", "saved")
 
 
 def token():
@@ -62,6 +64,17 @@ def request(method, url, params=None, data=None, headers=None):
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         sys.exit(f"HTTP {e.code} {method} {url.split('?')[0]}\n{body}")
+
+
+class APIError(Exception):
+    pass
+
+
+def request_soft(method, url, params=None):
+    try:
+        return request(method, url, params)
+    except SystemExit as e:
+        raise APIError(str(e)) from None
 
 
 def api(method, path, **params):
@@ -120,18 +133,27 @@ def publish_reel(a):
     if not a.yes and input("Publish publicly now? [y/N] ").strip().lower() != "y":
         sys.exit("Cancelled.")
 
+    result = publish(caption, video=a.video, video_url=a.video_url,
+                     thumb_offset=a.thumb_offset, share_to_feed=not a.no_feed)
+    print(f"published: {result['id']} {result['permalink']}")
+    append_log(a.log, result, a.video or a.video_url, caption)
+
+
+def publish(caption, video=None, video_url=None, thumb_offset=None, share_to_feed=True):
+    """Create, upload, wait, publish. Returns {"id", "permalink"}."""
+    check_caption(caption)
     params = {"media_type": "REELS", "caption": caption,
-              "share_to_feed": "false" if a.no_feed else "true"}
-    if a.thumb_offset is not None:
-        params["thumb_offset"] = int(a.thumb_offset * 1000)
+              "share_to_feed": "true" if share_to_feed else "false"}
+    if thumb_offset is not None:
+        params["thumb_offset"] = int(thumb_offset * 1000)
     uid = user_id()
-    if a.video_url:
-        params["video_url"] = a.video_url
+    if video_url:
+        params["video_url"] = video_url
         container = api("POST", f"{uid}/media", **params)
     else:
         params["upload_type"] = "resumable"
         container = api("POST", f"{uid}/media", **params)
-        with open(a.video, "rb") as f:
+        with open(video, "rb") as f:
             blob = f.read()
         upload_uri = container.get("uri") or \
             f"https://rupload.facebook.com/ig-api-upload/{VERSION}/{container['id']}"
@@ -145,16 +167,33 @@ def publish_reel(a):
     wait_ready(cid)
     media = api("POST", f"{uid}/media_publish", creation_id=cid)
     link = api("GET", media["id"], fields="permalink").get("permalink", "")
-    print(f"published: {media['id']} {link}")
+    return {"id": media["id"], "permalink": link}
 
-    if a.log:
-        new = not os.path.exists(a.log)
-        with open(a.log, "a", newline="", encoding="utf-8") as f:
-            w = csv.writer(f)
-            if new:
-                w.writerow(["date", "platform", "media_id", "permalink", "video", "caption_first_line"])
-            w.writerow([datetime.datetime.now().isoformat(timespec="seconds"), "instagram",
-                        media["id"], link, a.video or a.video_url, caption.strip().splitlines()[0]])
+
+def insights(media_id, metrics=DEFAULT_METRICS):
+    """Per-metric fetch so one unsupported metric does not fail the rest."""
+    out = {}
+    for m in metrics:
+        try:
+            resp = request_soft("GET", f"{GRAPH}/{VERSION}/{media_id}/insights", {"metric": m})
+            out[m] = resp["data"][0]["values"][0]["value"]
+        except Exception as e:  # noqa: BLE001 - metric names change between API versions
+            out[m] = None
+            print(f"insight {m}: {e}", file=sys.stderr)
+    return out
+
+
+def append_log(path, result, video, caption):
+    if not path:
+        return
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    new = not os.path.exists(path)
+    with open(path, "a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if new:
+            w.writerow(["date", "platform", "media_id", "permalink", "video", "caption_first_line"])
+        w.writerow([datetime.datetime.now().isoformat(timespec="seconds"), "instagram",
+                    result["id"], result["permalink"], video, caption.strip().splitlines()[0]])
 
 
 def main():
@@ -163,6 +202,9 @@ def main():
     sub.add_parser("me")
     sub.add_parser("limit")
     sub.add_parser("refresh")
+    i = sub.add_parser("insights")
+    i.add_argument("media_id")
+    i.add_argument("--metrics", default=",".join(DEFAULT_METRICS))
     r = sub.add_parser("reel")
     r.add_argument("video", nargs="?")
     r.add_argument("--video-url")
@@ -185,6 +227,8 @@ def main():
             out["expires_at"] = (datetime.datetime.now() +
                                  datetime.timedelta(seconds=out["expires_in"])).isoformat(timespec="minutes")
         print("Save the new access_token in IG_ACCESS_TOKEN.", file=sys.stderr)
+    elif a.cmd == "insights":
+        out = insights(a.media_id, a.metrics.split(","))
     else:
         publish_reel(a)
         return

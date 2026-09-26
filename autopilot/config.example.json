@@ -1,0 +1,39 @@
+{
+  "niches": [
+    {"name": "자취템", "keywords": ["자취 필수템", "원룸 수납", "주방 꿀템"], "best_category_ids": []},
+    {"name": "차량용품", "keywords": ["차량용 수납", "차량 청소"], "best_category_ids": []}
+  ],
+  "sources": ["goldbox", "best", "search"],
+  "price_min": 5000,
+  "price_max": 50000,
+  "rocket_only": true,
+  "excluded_categories": ["식품", "건강", "뷰티", "의약"],
+
+  "videos_per_run": 1,
+  "max_posts_per_day": 2,
+  "footage_mode": "higgsfield",
+  "publish_mode": "review",
+
+  "disclosure": "[광고] 이 게시물은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.",
+  "banned_phrases": ["최저가", "1위", "완치", "치료", "100%", "부작용 없", "효과 보장", "무조건"],
+  "min_sec": 10,
+  "max_sec": 60,
+  "font": "Noto Sans KR",
+
+  "claude": {
+    "bin": "claude",
+    "max_turns": 60,
+    "timeout_sec": 3600,
+    "extra_args": [],
+    "tools": {
+      "write": ["Read", "Write", "Edit"],
+      "footage": ["Read", "Write", "Edit", "Bash(curl:*)", "Bash(mkdir:*)", "mcp__higgsfield"]
+    }
+  },
+
+  "linkpage": {"enabled": true, "dir": "docs", "title": "영상 속 추천템 모음", "git_push": false},
+  "insight_metrics": ["views", "reach", "likes", "comments", "shares", "saved"],
+  "report_days": 30,
+  "max_retries": 2,
+  "notify_cmd": null
+}

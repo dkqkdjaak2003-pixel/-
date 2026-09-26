@@ -37,3 +37,10 @@
 - `references/compliance.md`: 공정위 추천·보증 지침, 쿠팡 파트너스 표기, YouTube 정책, Instagram API 제한 출처
 - `scripts/instagram_publish.py`: 인스타그램 릴스 자동 게시(파일 직접 업로드, 처리 대기, 게시, 로그), 광고 표기 없는 캡션은 차단, 토큰 갱신·할당량 조회. 설정법 `references/instagram-setup.md`
 - 사용자가 준비할 것: 인스타 프로페셔널 계정 + Meta 앱 토큰(`IG_ACCESS_TOKEN`, `IG_USER_ID`), 쿠팡 파트너스 최종 승인 후 API 키(`COUPANG_ACCESS_KEY`, `COUPANG_SECRET_KEY` 환경변수), ffmpeg 설치
+
+## 오토파일럿 (4차 작업)
+
+- `autopilot/autopilot.py`: 예약 실행용 전체 자동화 (소싱 → 대본 → 영상 → 합성 → QA → 승인/자동 게시 → 링크 페이지 → 성과 수집·학습). 창작 단계는 `claude -p`(헤드리스 Claude Code)로 실행
+- `autopilot/config.example.json`, `.env.example`, `run_daily.sh`, `README.md`(설치·cron·운영 모드)
+- 링크 페이지 `docs/index.html` 자동 생성 (GitHub Pages로 배포해 프로필 링크로 사용)
+- 쿠팡 스크립트에 subId·리포트 조회, 인스타 스크립트에 인사이트 조회 추가
