@@ -28,3 +28,11 @@
   - `claude plugin install higgsfield@higgsfield`
   - `claude plugin install caveman@caveman`
   - `claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp` 후 `/mcp`에서 브라우저 로그인
+
+## 쇼핑 쇼츠 자동화 (3차 작업)
+
+- 프로젝트 스킬 `.claude/skills/shopping-shorts/` 추가: 기획 → 쿠팡 파트너스 상품 소싱 → 대본 → 촬영/AI 영상(Higgsfield) → 음성 → ffmpeg 합성(광고 표기 자동 삽입) → 업로드 체크리스트
+- `scripts/coupang_partners.py`: 쿠팡 파트너스 API(검색·골드박스·카테고리 베스트·딥링크), 표준 라이브러리만 사용, 검색 결과 6시간 캐시
+- `scripts/assemble.py`: 장면 클립 → 1080×1920 합성, 자막·광고 표기 문구 번인 (ffmpeg + libass + 한글 폰트 필요)
+- `references/compliance.md`: 공정위 추천·보증 지침, 쿠팡 파트너스 표기, YouTube 정책, Instagram API 제한 출처
+- 사용자가 준비할 것: 쿠팡 파트너스 최종 승인 후 API 키(`COUPANG_ACCESS_KEY`, `COUPANG_SECRET_KEY` 환경변수), ffmpeg 설치
