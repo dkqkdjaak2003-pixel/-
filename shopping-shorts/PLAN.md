@@ -36,3 +36,34 @@
 3) PLAN.md의 "미확인" 항목부터 공식 원문으로 확인
 4) 먼저 물어볼 것: 첫 상품 카테고리, 채널 콘셉트, 주당 업로드 수
 ```
+
+---
+
+## 2차 결정 (2026-09-26)
+- 역할: 링크 = 사장님 / 영상 제작·업로드 자동화 = Claude
+- 유튜브: API로 **비공개** 업로드 → 사장님이 Studio에서 확인 후 공개
+  (근거: 2020-07-28 이후 만든 미감사 API 프로젝트는 비공개로만 업로드됨 — https://developers.google.com/youtube/v3/docs/videos/insert)
+- 인스타·스레드: 영상 파일 + 캡션 텍스트 자동 준비, 게시는 사장님 수동
+  (근거: 두 API 모두 공개 URL로만 영상 게시 가능 — Meta 개발자 문서)
+- 소재: Higgsfield 생성 + 사장님 실물 사진/영상 혼합
+- Higgsfield 영상 1편 크레딧: API로 조회 불가(모델 정보에 가격 없음). 첫 생성 1건으로 실측 예정. 참고: 음성(Voiceover) 1건 0.15 크레딧(거래 내역 기준)
+
+## 구성
+| 파일 | 역할 |
+|---|---|
+| `.claude/skills/shopping-shorts/SKILL.md` | 전체 절차(대본→소재→렌더→업로드), 확인 관문 |
+| `products.csv` | 사장님이 상품 입력 |
+| `jobs/<slug>/job.json` | 영상 1편 설계(장면·자막·고지·캡션) |
+| `scripts/render.py` | 9:16 편집, 자막, 전 구간 광고 고지, 음성·BGM 합성 |
+| `scripts/upload_youtube.py` | 비공개 업로드. 토큰 없으면 브라우저 안 띄우고 종료(코드 2) |
+
+## 데스크톱 1회 설정 (사장님)
+1. ffmpeg 설치: `winget install Gyan.FFmpeg` (설치 후 새 터미널)
+2. 파이썬 패키지: `uv pip install -r shopping-shorts/requirements.txt`
+3. Google Cloud: 프로젝트 생성 → YouTube Data API v3 사용 설정 → OAuth 동의 화면(테스트, 본인 계정을 테스트 사용자로) → OAuth 클라이언트(데스크톱 앱) → JSON을 `%USERPROFILE%\.shopping-shorts-secrets\client_secret.json` 으로 저장
+4. `python shopping-shorts/scripts/upload_youtube.py --login` → 브라우저에서 "허용"
+   - 테스트 상태 앱은 7일마다 재로그인 필요
+
+## 검증 기록 (클라우드 세션)
+- render.py: 샘플(이미지 2 + 영상 1, 10초) → 1080×1920 H.264/AAC 10.0초 출력, 한글 자막·고지 정상 표시. 음성+BGM 합성도 10.0초 정상.
+- upload_youtube.py: 토큰 없음 → 코드 2 종료 확인. 요청 본문은 공식 discovery 문서(revision 20260820) 필드와 일치(`containsSyntheticMedia`, `selfDeclaredMadeForKids`, `privacyStatus`). 실제 업로드는 미실행.
