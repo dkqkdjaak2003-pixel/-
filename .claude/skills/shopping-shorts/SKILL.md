@@ -48,6 +48,12 @@ Rules: no fake before/after, no fake "써봤는데" testimonial when nobody used
 - AI voice: Higgsfield `generate_audio` (list voices with `list_voices`), save `assets/voice.mp3`.
 - Music: only tracks the user has rights to, or add trending audio inside the platform app at upload time (licensed there). Set paths in `script.json`.
 
+## 5b. Sound design (broadcast-ad feel)
+- Narration: `text2speech_v2` with `variant: "elevenlabs"` gave the clearest Korean at ad tempo in testing (male preset "Harrison"); check takes by transcribing with faster-whisper and pick the most accurate/fastest. Write short punchy lines, not full sentences.
+- Cut the edit to the narration: get word timestamps (faster-whisper `word_timestamps=True`) and start each shot on its line.
+- `python3 $S/sound.py sfx assets/sfx` makes tick/hit/whoosh/suck/riser/ding; `python3 $S/sound.py music assets/music.wav <total_s> <drop_s>` makes a tense-to-bright bed with the drop on the reveal. Both are synthesized, so there is no licensing issue. Higgsfield's music/SFX models are reserved for its game pipeline, so do not use them here.
+- Put sfx on caption pops and cuts (`sfx` list in script.json), keep scenes 0.9-2.6s, use `start`/`speed` to show only the action. assemble.py ducks music under the voice and normalizes to -14 LUFS.
+
 ## 6. Assemble
 ```
 python3 .claude/skills/shopping-shorts/scripts/assemble.py shorts/<dir>
