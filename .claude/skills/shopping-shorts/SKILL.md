@@ -75,7 +75,7 @@ Write `publish.md`:
   python3 $S/youtube_publish.py upload shorts/<dir>/final.mp4 --meta shorts/<dir>/youtube.json [--synthetic]
   ```
   Same confirmation rule as Instagram. `--synthetic` when footage is realistic AI-generated. Marks paid promotion by default. Uploads from an un-audited API project are locked private.
-- TikTok can go through Higgsfield `tiktok_prepare_publish` (only after user confirms).
+- **TikTok** (setup in `references/tiktok-setup.md`): default `tiktok_publish.py draft final.mp4` uploads to the creator's TikTok inbox; they finish in the app (caption, sound, branded-content + AI toggles). `direct` posts only after the user approves that exact post — TikTok requires express consent per post. Alternative in chat: Higgsfield `tiktok_prepare_publish` (user submits its form).
 - `shorts/log.csv` gets a row per Instagram post automatically; add product id and hook used for other platforms by hand — for later comparing which hooks/products perform.
 
 ## Unattended mode

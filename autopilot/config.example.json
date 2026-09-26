@@ -13,7 +13,8 @@
   "max_posts_per_day": 2,
   "footage_mode": "higgsfield",
   "publish_mode": "review",
-  "platforms": ["instagram", "youtube"],
+  "platforms": ["instagram", "youtube", "tiktok"],
+  "tiktok": {"mode": "draft", "privacy": "PUBLIC_TO_EVERYONE"},
   "youtube": {
     "privacy": "public",
     "category_id": "26",

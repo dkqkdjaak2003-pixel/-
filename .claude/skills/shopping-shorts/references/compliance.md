@@ -51,7 +51,18 @@ Put it on the first caption line AND on screen for the whole video (assemble.py 
 - OAuth consent screen in "Testing" (external users): refresh tokens expire after 7 days. Source: https://support.google.com/cloud/answer/15549945
 - Upload quota changed in 2025-2026 (secondary sources report a separate upload bucket); check the Cloud console quota page and https://developers.google.com/youtube/v3/revision_history
 
-## 6. Content honesty (표시광고법 기본 원칙)
+## 6. TikTok Content Posting API
+- Unaudited clients: posts are SELF_ONLY, posting accounts must be private, max 5 users per 24h; audit lifts it.
+  Sources: https://developers.tiktok.com/docs/en/content-posting-api-get-started , https://developers.tiktok.com/docs/en/content-sharing-guidelines
+- Content Sharing Guidelines: show a preview, and send content only after the user expressly consents to the upload; commercial content disclosure (Your brand / Branded content) must be available.
+  Source: https://developers.tiktok.com/docs/en/content-sharing-guidelines
+- Inbox upload (`/v2/post/publish/inbox/video/init/`, scope `video.upload`): the user finishes posting from the TikTok notification.
+  Source: https://developers.tiktok.com/docs/en/content-posting-api-reference-upload-video
+- Chunks 5-64 MB (final chunk up to 128 MB), files under 5 MB in one chunk, sequential, 1-1000 chunks.
+  Source: https://developers.tiktok.com/doc/content-posting-api-media-transfer-guide
+- Access token 24h, refresh token 365 days. Source: https://developers.tiktok.com/docs/en/oauth-user-access-token-management
+
+## 7. Content honesty (표시광고법 기본 원칙)
 - No fabricated reviews, ratings, rankings, discounts or usage results.
 - No health/medical efficacy claims for foods, cosmetics, or devices without substantiation.
 - Do not reuse other creators' videos or copy their scripts; use own footage, licensed assets, or generated footage.

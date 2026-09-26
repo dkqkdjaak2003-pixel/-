@@ -12,7 +12,8 @@ cron ─▶ autopilot.py run
           ├─ assemble  ffmpeg 1080×1920, 자막 + 광고표기 상시 노출
           ├─ qa        해상도·길이·광고표기·금지표현·캡션 URL 검사 (실패 시 중단+알림)
           └─ publish   review 모드: 알림 → approve 명령 / auto 모드: 즉시 게시 (일일 상한)
-                       인스타 릴스 + 유튜브 쇼츠 (플랫폼별로 성공 기록 → 한쪽 실패 시 그쪽만 다음 실행에 재시도)
+                       인스타 릴스 + 유튜브 쇼츠 + 틱톡 (플랫폼별로 성공 기록 → 한쪽 실패 시 그쪽만 다음 실행에 재시도)
+                       틱톡: draft 모드 = 초안함 업로드 후 앱에서 탭 한 번 게시 / direct 모드 = approve 후에만 게시
                        → shorts/links.json → docs/index.html (프로필 링크용 번호 검색 페이지)
 cron ─▶ autopilot.py report
           인스타 인사이트 + 유튜브 조회수/좋아요 + 쿠팡 커미션 리포트 → shorts/learnings.md → 다음 source/script 프롬프트에 주입
@@ -26,7 +27,8 @@ cron ─▶ autopilot.py report
    `claude mcp add --transport http higgsfield https://mcp.higgsfield.ai/mcp` → `claude` 실행 후 `/mcp` 에서 로그인
 3. `cp autopilot/.env.example autopilot/.env` 후 키 입력 (쿠팡 파트너스 API 키, 인스타 토큰 — `.claude/skills/shopping-shorts/references/instagram-setup.md`)
    유튜브: `references/youtube-setup.md` 순서대로 OAuth 인증 1회 + **API 검수 신청** (검수 전 업로드는 비공개로 잠김).
-   유튜브를 안 쓰면 `config.json` 의 `"platforms"` 에서 `"youtube"` 를 빼세요.
+   틱톡: `references/tiktok-setup.md` (앱 생성·인증·검수 신청).
+   안 쓰는 플랫폼은 `config.json` 의 `"platforms"` 에서 빼세요.
 4. `cp autopilot/config.example.json autopilot/config.json` 후 니치·키워드·가격대 수정
 5. 1회 수동 실행: `autopilot/run_daily.sh run` → `python3 autopilot/autopilot.py status`
 6. 예약 실행 — macOS/Linux `crontab -e`:

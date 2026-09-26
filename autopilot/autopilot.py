@@ -32,6 +32,7 @@ sys.path.insert(0, SCRIPTS)
 import coupang_partners as cp  # noqa: E402
 import instagram_publish as ig  # noqa: E402
 import youtube_publish as yt  # noqa: E402
+import tiktok_publish as tt  # noqa: E402
 
 SHORTS = os.path.join(ROOT, "shorts")
 CONFIG = os.path.join(ROOT, "autopilot", "config.json")
@@ -280,6 +281,8 @@ def qa(cfg, job):
             problems.append(f"금지 표현: {w}")
     if re.search(r"https?://", caption):
         problems.append("캡션에 URL (인스타에선 클릭 안 됨; 프로필 링크 번호로 안내)")
+    if "tiktok" in platforms(cfg) and info_dur(video) > 600:
+        problems.append("틱톡 API 업로드는 10분 이하")
     if "youtube" in platforms(cfg):
         meta = load(os.path.join(d, "youtube.json"))
         if not meta:
@@ -356,6 +359,23 @@ def publish(cfg, job, approved=False):
                 if res.get("privacy") != yc.get("privacy", "public"):
                     notify(cfg, f"{job['id']} 유튜브 공개 상태가 {res.get('privacy')} 입니다 "
                                 "(API 프로젝트 검수 전이면 비공개로 잠김)")
+            elif pf == "tiktok":
+                tc = cfg.get("tiktok", {})
+                caption = open(os.path.join(d, "caption.txt"), encoding="utf-8").read().strip()
+                if tc.get("mode", "draft") == "direct":
+                    # TikTok requires the creator's explicit consent per post: never in auto mode
+                    if not job.get("approved"):
+                        notify(cfg, f"{job['id']} 틱톡 직접 게시는 승인 후에만 합니다: "
+                                    f"`python3 autopilot/autopilot.py approve {job['id']}`")
+                        continue
+                    res = tt.direct(video, caption, tc.get("privacy", "PUBLIC_TO_EVERYONE"),
+                                    aigc=cfg["footage_mode"] == "higgsfield")
+                else:
+                    res = tt.draft(video)
+                    notify(cfg, f"{job['id']} 틱톡 초안함에 업로드됨 — 틱톡 앱 알림을 열어 캡션 붙여넣고, "
+                                "'콘텐츠 공개 설정 → 브랜디드 콘텐츠'와 'AI 생성 콘텐츠'를 켠 뒤 게시하세요. "
+                                f"캡션: shorts/{job['id']}/caption.txt")
+                res["url"] = f"tiktok:{res['publish_id']}"
             else:
                 raise RuntimeError(f"unknown platform {pf}")
         except (Exception, SystemExit) as e:  # noqa: BLE001 - keep other platforms going
@@ -369,6 +389,9 @@ def publish(cfg, job, approved=False):
         add_link(cfg, job)
     if errors:
         raise RuntimeError("; ".join(errors))
+    if any(pf not in job.get("posts", {}) for pf in platforms(cfg)):
+        set_stage(job, "awaiting_approval", "some platforms need approval")
+        return
     urls = " ".join(v.get("url", "") for v in job.get("posts", {}).values())
     set_stage(job, "published", urls)
     notify(cfg, f"{job['id']} 게시 완료 {urls}")
