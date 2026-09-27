@@ -42,6 +42,11 @@ without login; ask the user for a screen recording to measure sound.
 - Hook shot at 1080p, others 720p unless the client pays for 1080p.
 - VO: record 2–4 takes (`text2speech_v2`, elevenlabs/minimax), transcribe with faster-whisper in the Higgsfield sandbox, keep the most accurate at the target tempo. Cut the edit to VO word timestamps.
 - Music/SFX: `sound.py music ... --style trap|tv`, `sound.py sfx`, `sound.py logo` (sound logo). Match a reference reel by numbers when the user gives one (see shopping-shorts SKILL "Reference-reel analysis").
+- AI music/SFX option: upload the silent edit and run `seedance_2_5` `mode: video_edit`, `generate_audio: true`
+  (15 s = 113 credits, ~25 min). The model voiced the burned-in captions even with "no speech" in the prompt,
+  so check the result with faster-whisper, strip voices with `demucs --two-stems=vocals` (pip install torch cpu +
+  demucs in the sandbox), stretch to the edit length with `atempo`, and use `no_vocals` as `music`.
+  Feeding a caption-free edit should reduce this; this has not been tested yet.
 
 ## 5. Packshot & finishing
 - Packshot scene: `{"clip": "image:assets/product.png", "bg": "#F5F6F9", "duration": 3}` — real photo on brand colour with a slow push-in; slogan via a caption with `"style": "Slogan"`; sound logo on the cut.
