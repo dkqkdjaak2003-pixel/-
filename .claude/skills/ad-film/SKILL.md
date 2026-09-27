@@ -7,7 +7,7 @@ description: Plan and produce a short vertical video ad (15s TVC-style for Reels
 
 An ad sells one idea. Everything in the 15 seconds serves that one line. Save work under `ads/<yyyymmdd>-<slug>/`. Stop at every **(confirm)**.
 
-Read `references/ad-framework.md` before the brief. Tools are shared with the shopping-shorts skill:
+Stages 1–3 (brief, concepts, conti) belong to the **ad-planner** agent (`.claude/agents/ad-planner.md`): delegate them to it, or follow `references/planning-playbook.md` yourself when the agent is not loaded. Read `references/ad-framework.md` before the brief. Tools are shared with the shopping-shorts skill:
 `S=.claude/skills/shopping-shorts/scripts` (`assemble.py`, `sound.py`).
 
 ## 1. Brief (confirm) → `brief.md`

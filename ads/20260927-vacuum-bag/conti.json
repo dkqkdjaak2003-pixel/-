@@ -1,0 +1,98 @@
+{
+ "title": "진공 압축팩 15초 · A안 옷장이 숨을 쉰다",
+ "bumper_6s": [
+  1,
+  5,
+  8
+ ],
+ "cuts": [
+  {
+   "no": 1,
+   "tc": "0.0–1.5",
+   "shot": "MS · 정면 · 핸드헬드 살짝 흔들림",
+   "visual": "원룸. 후드티 입은 사람이 등으로 옷장 문을 밀어 버틴다. 문틈으로 이불 끝이 삐져나옴",
+   "caption": "환절기마다",
+   "na": "환절기마다,",
+   "sfx": "딱·딱 / 808 베이스만",
+   "method": "AI (1080p)",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Medium shot of a person in a hoodie seen from the side, pressing their back against a small wardrobe door to keep it shut, a fluffy comforter corner sticking out of the door gap, small apartment room."
+  },
+  {
+   "no": 2,
+   "tc": "1.5–3.0",
+   "shot": "CU · 로우 앵글 · 천천히 푸시인",
+   "visual": "옷장 문 클로즈업. 문이 숨을 참듯 안에서 불룩하게 부풀었다 꺼졌다 반복",
+   "caption": "옷장은 *숨을 참습니다*",
+   "na": "옷장은, 숨을 참습니다.",
+   "sfx": "낮은 드론, 삐걱",
+   "method": "AI",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Low-angle close-up of a wardrobe door bulging outward from pressure inside as if holding its breath, curved motion lines on the door, dramatic."
+  },
+  {
+   "no": 3,
+   "tc": "3.0–4.2",
+   "shot": "WS · 슬로모션",
+   "visual": "문이 튕겨 열리며 이불이 카메라 쪽으로 쏟아진다",
+   "caption": "",
+   "na": "",
+   "sfx": "808 쿵 → 음악 순간 정지",
+   "method": "AI",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Wide shot, wardrobe door bursting open and fluffy comforters tumbling out toward the camera in slow motion, action lines."
+  },
+  {
+   "no": 4,
+   "tc": "4.2–6.2",
+   "shot": "TOP · 고정",
+   "visual": "손만 보인다. 이불을 압축팩에 넣고 지퍼를 닫는다",
+   "caption": "*넣고,* *닫고,*",
+   "na": "넣고, 닫고,",
+   "sfx": "뽁 · 뽁 / 드럼 전체 진입",
+   "method": "AI+상품사진",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Top-down view, only hands visible, placing a folded comforter into a large clear storage bag and pulling the zipper closed, arrow showing zipper motion."
+  },
+  {
+   "no": 5,
+   "tc": "6.2–8.7",
+   "shot": "MACRO · 고정 · 1.4배속",
+   "visual": "압축팩이 쪼그라들며 납작해진다 (히어로 데모)",
+   "caption": "공기를 빼면 *납작*",
+   "na": "공기를 빼면,",
+   "sfx": "쉭 → 808 쿵",
+   "method": "AI+상품사진",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Macro shot of a clear storage bag with a comforter inside shrinking and flattening, inward arrows showing air leaving, outline of the bag's original size."
+  },
+  {
+   "no": 6,
+   "tc": "8.7–10.5",
+   "shot": "MS · 옆으로 트래킹",
+   "visual": "납작한 팩이 선반에 쌓이고 위로 여유 공간이 생긴다",
+   "caption": "",
+   "na": "",
+   "sfx": "부드러운 휙",
+   "method": "AI+상품사진",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Medium tracking shot of a wardrobe shelf where thin flat storage bags are stacked neatly with lots of empty space above them."
+  },
+  {
+   "no": 7,
+   "tc": "10.5–12.0",
+   "shot": "CU · 고정",
+   "visual": "손가락 하나로 옷장 문이 스르르 닫힌다 (1컷과 대비)",
+   "caption": "옷장이 *숨을 쉽니다*",
+   "na": "이제, 옷장이 숨을 쉽니다.",
+   "sfx": "숨 내쉬는 여운",
+   "method": "AI",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Close-up of a single fingertip gently pushing a wardrobe door so it closes smoothly, calm mood, soft curved lines like an exhale."
+  },
+  {
+   "no": 8,
+   "tc": "12.0–15.0",
+   "shot": "패키샷 · 천천히 확대",
+   "visual": "실제 상품 사진을 밝은 배경에. 위 슬로건, 아래 3초템 로고와 '프로필 링크 1번'",
+   "caption": "공간은 줄이고\\n*여유*는 늘리고",
+   "na": "공간은 줄이고, 여유는 늘리고. 3초템.",
+   "sfx": "사운드 로고 (딱·딱·뽁 + 차임)",
+   "method": "사진합성 (사진 필요)",
+   "sketch": "advertising storyboard frame, black marker and grey copic sketch on white paper, loose professional storyboard style, no text, no logos. Product packshot layout: a single flat clear storage bag centered on a plain light background, empty rectangle above for a slogan and a small empty box at the bottom for a logo."
+  }
+ ]
+}

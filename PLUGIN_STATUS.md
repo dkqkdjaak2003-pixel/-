@@ -52,3 +52,5 @@
 - 스킬 `.claude/skills/ad-film/`: 한 줄 메시지 → 콘셉트 3안 → 스토리보드(마커 스케치 키프레임) → 실제 상품 사진 참조 제작 → 제품 컷·슬로건·사운드 로고 → 15초 본편·6초 요약본·자막 없는 버전 납품. 판매자 광고 대행 기준 포함
 - `sound.py logo`(사운드 로고), `assemble.py`의 `image:` 제품 컷 장면과 `Slogan` 자막 스타일
 - 첫 광고 스토리보드: `ads/20260927-vacuum-bag/storyboard.html`
+- AI 기획자 에이전트 `.claude/agents/ad-planner.md`: 상황 분석 → 인사이트 → 크리에이티브 브리프 → 빅 아이디어 3안 평가 → 컷별 콘티(표 + JSON) → 15초/6초 버전. 형식은 `ad-film/references/planning-playbook.md`
+- 첫 기획안: `ads/20260927-vacuum-bag/` (brief.md, concepts.md, conti.md, conti.json, storyboard.html)
