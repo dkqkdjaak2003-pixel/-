@@ -2,9 +2,12 @@
 """Synthesize royalty-free SFX and a music bed for shorts (standard library only).
 
 Usage:
-  sound.py sfx <out_dir>                       # tick, hit, whoosh, suck, riser, ding .wav
-  sound.py music <out.wav> <seconds> <drop_s> [--bpm 120]
-      tense ticking pulse until drop_s, then a brighter four-on-the-floor groove.
+  sound.py sfx <out_dir>              # tick, click, pop, swoosh, boom, hit, whoosh, suck, riser, ding .wav
+  sound.py music <out.wav> <seconds> <drop_s> [--bpm 120] [--style tv|trap]
+      tv:   tense ticking pulse until drop_s, then a brighter four-on-the-floor groove.
+      trap: laid-back half-time beat (default 76 bpm) on a heavy 808 bass, plucked
+            minor melody; drop_s brings in the full drums. Suits info-style reels
+            where the narration leads.
 
 Everything is generated from oscillators and noise, so there is no licensing issue.
 """
@@ -40,12 +43,15 @@ def add(dst, src, at, gain=1.0):
             dst[j] += s * gain
 
 
-def noise_lp(n, alpha):
-    """One-pole low-passed white noise; alpha 0..1 (higher = brighter)."""
-    y, out = 0.0, []
+def noise_lp(n, alpha, poles=1):
+    """Low-passed white noise (cascade of one-pole filters); alpha 0..1, higher = brighter."""
+    ys, out = [0.0] * poles, []
     for _ in range(n):
-        y += alpha * (random.uniform(-1, 1) - y)
-        out.append(y)
+        v = random.uniform(-1, 1)
+        for p in range(poles):
+            ys[p] += alpha * (v - ys[p])
+            v = ys[p]
+        out.append(v)
     return out
 
 
@@ -107,6 +113,50 @@ def riser(sec=1.2):
     return out
 
 
+def click():
+    """Very short high snap (UI-style 'ttak')."""
+    n = int(0.04 * SR)
+    nz = noise_lp(n, 0.5, poles=3)
+    return [(0.6 * nz[i] + 0.9 * math.sin(2 * math.pi * 3000 * i / SR)) * math.exp(-i / (0.006 * SR))
+            for i in range(n)]
+
+
+def pop():
+    """Bubble 'ppok': sine that sweeps up fast, mid-high, short."""
+    n = int(0.16 * SR)
+    out, ph = [], 0.0
+    for i in range(n):
+        t = i / SR
+        ph += 2 * math.pi * (900 + 2200 * (1 - math.exp(-t / 0.012))) / SR
+        out.append(math.sin(ph) * math.exp(-t / 0.035) * min(1, t / 0.002))
+    return out
+
+
+def swoosh(sec=0.45):
+    """Soft mid swoosh for caption changes."""
+    n = int(sec * SR)
+    out, ys = [], [0.0, 0.0, 0.0]
+    for i in range(n):
+        t = i / n
+        a, v = 0.12 + 0.35 * math.sin(math.pi * t), random.uniform(-1, 1)
+        for p in range(3):
+            ys[p] += a * (v - ys[p])
+            v = ys[p]
+        out.append(v * math.sin(math.pi * t) ** 2)
+    return out
+
+
+def boom():
+    """808 hit with a long tail for the reveal."""
+    n = int(1.2 * SR)
+    out, ph = [], 0.0
+    for i in range(n):
+        t = i / SR
+        ph += 2 * math.pi * (48 + 90 * math.exp(-t / 0.04)) / SR
+        out.append(math.tanh(2.2 * math.sin(ph)) * math.exp(-t / 0.45))
+    return out
+
+
 def ding():
     n = int(1.2 * SR)
     return [sum(a * math.sin(2 * math.pi * f * i / SR) for f, a in ((1318.5, 0.6), (1975.5, 0.35), (2637, 0.15)))
@@ -156,6 +206,65 @@ def pad(freqs, sec, bright=0.3):
     return out
 
 
+def bass808(freq, sec):
+    n = int(sec * SR)
+    out, ph = [], 0.0
+    for i in range(n):
+        t = i / SR
+        ph += 2 * math.pi * (freq * (1 + 0.6 * math.exp(-t / 0.03))) / SR
+        out.append(math.tanh(1.8 * math.sin(ph)) * math.exp(-t / 0.9) * min(1, (sec - t) / 0.03))
+    return out
+
+
+def snare():
+    n = int(0.25 * SR)
+    nz = noise_lp(n, 0.6)
+    return [(0.8 * nz[i] * math.exp(-i / (0.07 * SR)) + 0.5 * math.sin(2 * math.pi * 190 * i / SR)
+             * math.exp(-i / (0.04 * SR))) for i in range(n)]
+
+
+def pluck(freq, sec=0.5):
+    n = int(sec * SR)
+    return [sum(a * math.sin(2 * math.pi * freq * h * i / SR) * math.exp(-i * h / (0.25 * SR))
+                for h, a in ((1, 1.0), (2, 0.6), (3, 0.45), (4, 0.3), (6, 0.2), (8, 0.12)))
+            * math.exp(-i / (0.2 * SR)) * min(1, i / (0.003 * SR)) for i in range(n)]
+
+
+def trap(sec, drop, bpm=76):
+    out = buf(sec)
+    beat = 60 / bpm
+    bar = 4 * beat
+    k, s_, h = kick(), snare(), hat()
+    roots = [55.0, 43.65, 49.0, 41.2]            # A1  F1  G1  E1
+    arp = [[220, 261.63, 329.63, 261.63], [174.61, 220, 261.63, 220],
+           [196, 246.94, 293.66, 246.94], [164.81, 207.65, 246.94, 207.65]]
+    t, b = 0.0, 0
+    while t < sec:
+        r = roots[b % 4]
+        add(out, bass808(r, min(bar * 0.5, sec - t)), t, 0.3)
+        add(out, bass808(r, min(bar * 0.45, max(0.01, sec - t - bar * 0.625))), t + bar * 0.625, 0.24)
+        for j, f in enumerate(arp[b % 4] * 2):     # eighth-note plucked arpeggio
+            add(out, pluck(f), t + j * beat / 2, 0.55)
+        add(out, pad([arp[b % 4][0], arp[b % 4][1], arp[b % 4][2]], min(bar, sec - t), 0.4), t, 0.3)
+        full = t >= drop - 1e-6
+        for q in range(16):                        # 16th grid
+            tq = t + q * beat / 4
+            if tq >= sec:
+                break
+            if q in (0, 10) or (full and q == 7):
+                add(out, k, tq, 0.8)
+            if q in (8,) and (full or b % 2 == 1):
+                add(out, s_, tq, 0.55)
+            if full and (q % 2 == 0 or (b % 2 == 1 and q >= 12)):   # hats + roll at bar end
+                add(out, h, tq, 0.45)
+        t += bar
+        b += 1
+    fade = int(0.6 * SR)
+    for j in range(min(fade, len(out))):
+        out[-1 - j] *= j / fade
+    return out
+
+
 def music(sec, drop, bpm=120):
     out = buf(sec)
     beat = 60 / bpm
@@ -201,13 +310,17 @@ def main():
         sys.exit(__doc__)
     if sys.argv[1] == "sfx":
         d = sys.argv[2]
-        for name, fn in (("tick", tick), ("hit", hit), ("whoosh", whoosh), ("suck", suck),
+        for name, fn in (("tick", tick), ("click", click), ("pop", pop), ("swoosh", swoosh),
+                         ("boom", boom), ("hit", hit), ("whoosh", whoosh), ("suck", suck),
                          ("riser", riser), ("ding", ding)):
             write(f"{d}/{name}.wav", fn())
             print(f"{d}/{name}.wav")
     elif sys.argv[1] == "music":
-        bpm = float(sys.argv[sys.argv.index("--bpm") + 1]) if "--bpm" in sys.argv else 120
-        write(sys.argv[2], music(float(sys.argv[3]), float(sys.argv[4]), bpm))
+        style = sys.argv[sys.argv.index("--style") + 1] if "--style" in sys.argv else "tv"
+        default_bpm = 76 if style == "trap" else 120
+        bpm = float(sys.argv[sys.argv.index("--bpm") + 1]) if "--bpm" in sys.argv else default_bpm
+        fn = trap if style == "trap" else music
+        write(sys.argv[2], fn(float(sys.argv[3]), float(sys.argv[4]), bpm))
         print(sys.argv[2])
     else:
         sys.exit(__doc__)
