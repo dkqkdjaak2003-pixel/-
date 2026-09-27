@@ -1,0 +1,148 @@
+{
+ "scenes": [
+  {
+   "clip": "assets/g1.mp4",
+   "start": 0.0,
+   "duration": 1.667,
+   "captions": [
+    {
+     "text": "환절기마다",
+     "at": 1.0,
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g1.mp4",
+   "start": 2.3,
+   "duration": 0.833,
+   "captions": [
+    {
+     "text": "옷장은",
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g1.mp4",
+   "start": 3.1,
+   "duration": 0.833,
+   "captions": [
+    {
+     "text": "숨을 *참습니다*",
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g2.mp4",
+   "start": 0.8,
+   "duration": 0.833
+  },
+  {
+   "clip": "assets/g3.mp4",
+   "start": 0.4,
+   "speed": 1.6,
+   "duration": 0.833,
+   "captions": [
+    {
+     "text": "*넣고,* *닫고,*",
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g4.mp4",
+   "start": 0.0,
+   "duration": 0.833,
+   "captions": [
+    {
+     "text": "공기를 빼면",
+     "at": 0.5,
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g4.mp4",
+   "start": 1.2,
+   "speed": 1.2,
+   "duration": 1.667,
+   "captions": [
+    {
+     "text": "공기를 빼면",
+     "end": 0.8
+    },
+    {
+     "text": "*납작*",
+     "at": 0.84,
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g5.mp4",
+   "start": 0.5,
+   "duration": 0.833,
+   "captions": [
+    {
+     "text": "이제, 옷장이",
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g6.mp4",
+   "start": 0.5,
+   "duration": 0.833,
+   "captions": [
+    {
+     "text": "*숨을 쉽니다*",
+     "pop": true
+    }
+   ]
+  },
+  {
+   "clip": "assets/g7.mp4",
+   "start": 0.8,
+   "duration": 0.833
+  },
+  {
+   "clip": "assets/g8.mp4",
+   "start": 0.0,
+   "speed": 0.8,
+   "duration": 5.0,
+   "captions": [
+    {
+     "text": "공간은 줄이고",
+     "style": "Slogan",
+     "pop": true
+    },
+    {
+     "text": "공간은 줄이고\n*여유*는 늘리고",
+     "style": "Slogan",
+     "at": 0.9
+    },
+    {
+     "text": "프로필 링크 *1번*",
+     "at": 2.5,
+     "pop": true
+    }
+   ]
+  }
+ ],
+ "voice": "assets/vo.mp3",
+ "voice_at": 1.0,
+ "music": "assets/ai_audio.wav",
+ "music_gain": -5,
+ "sfx": [
+  {
+   "file": "assets/sfx/logo.wav",
+   "at": 12.5,
+   "gain": -1
+  }
+ ],
+ "disclosure": "[광고] 이 게시물은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.",
+ "font": "Black Han Sans",
+ "disclosure_font": "IBM Plex Sans KR"
+}
