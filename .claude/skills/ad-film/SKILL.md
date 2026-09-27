@@ -10,6 +10,16 @@ An ad sells one idea. Everything in the 15 seconds serves that one line. Save wo
 Stages 1–3 (brief, concepts, conti) belong to the **ad-planner** agent (`.claude/agents/ad-planner.md`): delegate them to it, or follow `references/planning-playbook.md` yourself when the agent is not loaded. Read `references/ad-framework.md` before the brief. Tools are shared with the shopping-shorts skill:
 `S=.claude/skills/shopping-shorts/scripts` (`assemble.py`, `sound.py`).
 
+## 0. Reference library ("learning" shorts)
+Shorts are learned as numbers, not by training a model: every reference the user likes goes through
+`scripts/ref_analyze.py add <url> --tag <brand-film|info-reel|...>` (run in the Higgsfield sandbox; it needs
+ffmpeg, numpy, faster-whisper) and the JSON line is kept in `ads/refs/library.jsonl`.
+`ref_analyze.py profile --tag brand-film` gives the targets for a new ad: shot length, share of cuts on the
+beat grid and its bpm, music tempo, band energy, loudness, narration speed. Cut the edit on that beat grid
+(e.g. brand-film: ~1 s shots, 71% of cuts on a 146.5 bpm grid → edit on 72/73 bpm beats) and generate fewer,
+longer clips that are cut into several beat-length shots. Instagram og:video files usually have no audio
+without login; ask the user for a screen recording to measure sound.
+
 ## 1. Brief (confirm) → `brief.md`
 - Who pays: own channel (affiliate) or a client (seller/brand). For a client, get written OK on claims and product photos they supply.
 - Product facts sheet: name, price, specs **only from the seller's page or the client**, with source and date.
