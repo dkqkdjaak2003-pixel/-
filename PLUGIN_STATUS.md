@@ -46,3 +46,9 @@
 - 쿠팡 스크립트에 subId·리포트 조회, 인스타 스크립트에 인사이트 조회 추가
 - 유튜브 쇼츠 자동 업로드 `scripts/youtube_publish.py` (OAuth 데스크톱 인증, 재개 가능 업로드, 유료 프로모션·AI 합성 표시, 통계 조회), 오토파일럿에 플랫폼별 게시·재시도·성과 합산 연동. 설정법 `references/youtube-setup.md`
 - 틱톡 `scripts/tiktok_publish.py` (초안함 업로드 기본 / 승인 후 직접 게시, 브랜디드 콘텐츠·AI 표시, 토큰 자동 갱신, 분할 업로드), 오토파일럿 연동. 설정법 `references/tiktok-setup.md`
+
+## 광고 제작 (5차 작업)
+
+- 스킬 `.claude/skills/ad-film/`: 한 줄 메시지 → 콘셉트 3안 → 스토리보드(마커 스케치 키프레임) → 실제 상품 사진 참조 제작 → 제품 컷·슬로건·사운드 로고 → 15초 본편·6초 요약본·자막 없는 버전 납품. 판매자 광고 대행 기준 포함
+- `sound.py logo`(사운드 로고), `assemble.py`의 `image:` 제품 컷 장면과 `Slogan` 자막 스타일
+- 첫 광고 스토리보드: `ads/20260927-vacuum-bag/storyboard.html`

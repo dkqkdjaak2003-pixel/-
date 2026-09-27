@@ -5,3 +5,5 @@ autopilot/.env
 autopilot/config.json
 shorts/
 client_secret*.json
+ads/*/build/
+ads/*/assets/

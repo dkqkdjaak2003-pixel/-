@@ -2,7 +2,7 @@
 """Synthesize royalty-free SFX and a music bed for shorts (standard library only).
 
 Usage:
-  sound.py sfx <out_dir>              # tick, click, pop, swoosh, boom, hit, whoosh, suck, riser, ding .wav
+  sound.py sfx <out_dir>              # tick, click, pop, swoosh, boom, hit, whoosh, suck, riser, ding, logo .wav
   sound.py music <out.wav> <seconds> <drop_s> [--bpm 120] [--style tv|trap]
       tv:   tense ticking pulse until drop_s, then a brighter four-on-the-floor groove.
       trap: laid-back half-time beat (default 76 bpm) on a heavy 808 bass, plucked
@@ -163,6 +163,19 @@ def ding():
             * math.exp(-i / (0.35 * SR)) for i in range(n)]
 
 
+def logo():
+    """Sound logo: ttak-ttak-ppok, then a two-note rising chime (about 1.3 s)."""
+    out = buf(1.3)
+    add(out, click(), 0.0, 0.8)
+    add(out, click(), 0.14, 0.8)
+    add(out, pop(), 0.3, 1.0)
+    for at, f in ((0.52, 1046.5), (0.7, 1568.0)):
+        n = int(0.6 * SR)
+        add(out, [(math.sin(2 * math.pi * f * i / SR) + 0.3 * math.sin(4 * math.pi * f * i / SR))
+                  * math.exp(-i / (0.22 * SR)) for i in range(n)], at, 0.55)
+    return out
+
+
 # ---------- music bed ----------
 
 def kick():
@@ -312,7 +325,7 @@ def main():
         d = sys.argv[2]
         for name, fn in (("tick", tick), ("click", click), ("pop", pop), ("swoosh", swoosh),
                          ("boom", boom), ("hit", hit), ("whoosh", whoosh), ("suck", suck),
-                         ("riser", riser), ("ding", ding)):
+                         ("riser", riser), ("ding", ding), ("logo", logo)):
             write(f"{d}/{name}.wav", fn())
             print(f"{d}/{name}.wav")
     elif sys.argv[1] == "music":

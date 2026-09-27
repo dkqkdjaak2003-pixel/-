@@ -18,7 +18,10 @@ Reads shorts/<slug>/script.json:
    "disclosure": "쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다",
    "font": "Noto Sans KR",             # optional; any installed Korean font
    "disclosure_font": "..."}           # optional; defaults to font
-A scene clip may be "color:#2350FF" to render a solid background instead of a file.
+A scene clip may be "color:#2350FF" to render a solid background instead of a file,
+or "image:assets/product.png" for a packshot: the real product photo fitted on a
+"bg" colour (default #F5F6F9) with a slow push-in.
+A caption may set "style": "Slogan" (large dark text in the upper third, for packshots).
 In caption text, *word* is highlighted in yellow and "\\n" breaks the line.
 Writes shorts/<slug>/final.mp4 (loudness-normalised to -14 LUFS) and captions.ass.
 The disclosure line is kept at the top of the screen for the whole video.
@@ -41,12 +44,14 @@ Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold
 Style: Caption,{font},84,&H00FFFFFF,&H00000000,&H80000000,1,1,6,2,2,60,60,420
 Style: Disclosure,{dfont},34,&H00FFFFFF,&H00000000,&H80000000,0,3,2,0,8,40,40,90
 Style: BigNum,{font},560,&H003BD4FF,&H00000000,&H64000000,0,1,0,12,5,40,40,0
+Style: Slogan,{font},96,&H001C1715,&H00FFFFFF,&H00FFFFFF,0,1,0,0,8,60,60,330
 
 [Events]
 Format: Layer, Start, End, Style, Text
 """
 YELLOW = r"{\c&H3BD4FF&}"
-WHITE = r"{\c&HFFFFFF&}"
+BLUE = r"{\c&HFF5023&}"
+RESET = r"{\r}"
 POP = r"{\fscx135\fscy135\t(0,110,\fscx100\fscy100)}"
 
 
@@ -58,9 +63,9 @@ def ts(sec):
     return f"{h}:{m:02}:{s:02}.{cs:02}"
 
 
-def ass_text(text):
+def ass_text(text, highlight=YELLOW):
     text = text.replace("\\", "").replace("{", "(").replace("}", ")").replace("\n", "\\N")
-    return re.sub(r"\*(.+?)\*", lambda m: YELLOW + m.group(1) + WHITE, text)
+    return re.sub(r"\*(.+?)\*", lambda m: highlight + m.group(1) + RESET, text)
 
 
 def run(cmd):
@@ -86,10 +91,19 @@ def main():
         speed = float(sc.get("speed", 1))
         if sc["clip"].startswith("color:"):
             src = ["-f", "lavfi", "-i", f"color=c=0x{sc['clip'][7:].lstrip('#')}:s=1080x1920:r=30"]
+        elif sc["clip"].startswith("image:"):
+            src = ["-loop", "1", "-framerate", "30", "-i", os.path.join(root, sc["clip"][6:])]
         else:
             src = ["-ss", str(sc.get("start", 0)), "-i", os.path.join(root, sc["clip"])]
-        vf = (f"setpts=PTS/{speed},scale=1080:1920:force_original_aspect_ratio=increase,"
-              f"crop=1080:1920,fps=30,tpad=stop_mode=clone:stop_duration={dur}")
+        if sc["clip"].startswith("image:"):
+            bg = sc.get("bg", "#F5F6F9").lstrip("#")
+            frames = int(dur * 30)
+            vf = (f"scale=860:860:force_original_aspect_ratio=decrease,"
+                  f"pad=1080:1920:(ow-iw)/2:(oh-ih)/2+140:color=0x{bg},setsar=1,"
+                  f"zoompan=z='1+0.07*on/{frames}':x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2':d=1:s=1080x1920:fps=30")
+        else:
+            vf = (f"setpts=PTS/{speed},scale=1080:1920:force_original_aspect_ratio=increase,"
+                  f"crop=1080:1920,fps=30,tpad=stop_mode=clone:stop_duration={dur}")
         run(["ffmpeg", "-y", *src, "-vf", vf, "-t", str(dur),
              "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", out])
         parts.append(out)
@@ -97,8 +111,9 @@ def main():
         for c in caps:
             start = t + float(c.get("at", 0))
             end = t + float(c.get("end", dur))
-            events.append(f"Dialogue: 0,{ts(start)},{ts(end)},Caption,"
-                          f"{POP if c.get('pop') else ''}{ass_text(c['text'])}")
+            events.append(f"Dialogue: 0,{ts(start)},{ts(end)},{c.get('style', 'Caption')},"
+                          f"{POP if c.get('pop') else ''}"
+                          f"{ass_text(c['text'], BLUE if c.get('style') == 'Slogan' else YELLOW)}")
         if sc.get("big"):
             events.append(f"Dialogue: 0,{ts(t)},{ts(t + dur)},BigNum,{POP}{ass_text(sc['big'])}")
         t += dur

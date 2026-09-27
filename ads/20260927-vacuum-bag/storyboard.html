@@ -1,0 +1,123 @@
+<title>옷장이 숨을 쉰다 스토리보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{--paper:#F5F6F9;--card:#FFFFFF;--ink:#15171C;--ink-2:#4A5060;--line:#DDE1EA;--blue:#2350FF;--sticker:#FFD43B;--sticker-ink:#1A1600;--soft:#E9EDFF;
+--display:"Black Han Sans","IBM Plex Sans KR",sans-serif;--body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0F1116;--card:#181B22;--ink:#ECEEF3;--ink-2:#A3AABB;--line:#2A2F3B;--blue:#6F8BFF;--soft:#1D2440;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0F1116;--card:#181B22;--ink:#ECEEF3;--ink-2:#A3AABB;--line:#2A2F3B;--blue:#6F8BFF;--soft:#1D2440;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;gap:28px}
+h1,h2{margin:0;font-family:var(--display);font-weight:400;text-wrap:balance}
+h1{font-size:clamp(32px,6vw,52px);line-height:1.1}
+h2{font-size:24px}
+p{margin:0;max-width:68ch}
+.eyebrow{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.muted{color:var(--ink-2)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:var(--blue)}
+.sticker{background:var(--sticker);color:var(--sticker-ink);padding:.05em .4em;border-radius:6px;display:inline-block;transform:rotate(-2deg)}
+header{display:grid;gap:12px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.prop{font-family:var(--display);font-size:clamp(22px,4vw,30px);color:var(--blue)}
+.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.route{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:6px;align-content:start}
+.route.pick{box-shadow:0 0 0 2px var(--blue) inset;border-color:var(--blue)}
+.tag{font:600 12px var(--mono);padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--blue);justify-self:start}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.shot{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px;align-content:start}
+.shot .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.shot .no{font-family:var(--display);font-size:28px;line-height:1}
+.shot .tc{font:600 13px var(--mono);color:var(--ink-2)}
+.row{display:grid;grid-template-columns:64px 1fr;gap:8px;font-size:14px}
+.row b{font:600 12px var(--mono);color:var(--ink-2);padding-top:2px}
+.vo{font-weight:700}
+.sheet{font-size:13px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--mono);color:var(--ink-2)}
+tr:last-child td{border-bottom:0}
+.need{background:var(--card);border:2px dashed var(--blue);border-radius:12px;padding:16px;display:grid;gap:6px}
+</style>
+<div class="wrap">
+<header>
+  <span class="eyebrow">광고 스토리보드 · 01 · 2026-09-27 · 검토용</span>
+  <h1><span class="sticker">3초템</span> 진공 압축팩 15초 광고</h1>
+  <p class="muted">쿠팡 파트너스 상품 <a href="https://www.coupang.com/vp/products/7597682456" target="_blank" rel="noopener">진공 압축 이불압축보관 공간절약 재사용가능 압축팩</a> · 9:16 · 15초 · 인스타 릴스 / 유튜브 쇼츠 / 틱톡</p>
+</header>
+
+<section style="display:grid;gap:12px">
+  <span class="eyebrow">한 줄 메시지</span>
+  <div class="prop">옷장이 숨을 쉰다.</div>
+  <p>기능(진공, 재사용)을 늘어놓지 않고, 꽉 막힌 옷장이 다시 숨을 쉬는 순간 하나를 보여줍니다. 옷장을 사람처럼 숨 막히게 표현하는 게 핵심 장치입니다.</p>
+  <div class="routes">
+    <div class="route pick"><span class="tag">A · 추천</span><b>옷장이 숨을 쉰다</b><span class="muted">옷장을 의인화. 긴장(숨 막힘) → 해방(숨 쉼)이 트랩 비트의 드롭과 맞아떨어집니다.</span></div>
+    <div class="route"><span class="tag">B</span><b>환절기 3분 컷</b><span class="muted">계절 교체 정리를 짧게 끝내는 이야기. 시의성은 좋지만 "3분"은 실측 근거가 없어 문구를 조정해야 합니다.</span></div>
+    <div class="route"><span class="tag">C</span><b>납작 챌린지</b><span class="muted">부피가 줄어드는 장면을 놀이처럼. 가볍고 재밌지만 광고보다 챌린지 영상 느낌이 납니다.</span></div>
+  </div>
+  <p class="muted">슬로건: <b>공간은 줄이고, 여유는 늘리고</b> · 사운드 로고: 딱·딱·뽁 + 두 음 차임</p>
+</section>
+
+<section style="display:grid;gap:12px">
+  <span class="eyebrow">컷 구성 · 15초</span>
+  <h2>여섯 컷</h2>
+  <p class="muted">각 컷의 스케치는 링크를 누르면 새 탭에서 열립니다. 실제 제품 모양을 흉내 내지 않도록 마커 스케치로만 그렸습니다.</p>
+  <div class="board">
+    <div class="shot"><div class="top"><span class="no">1</span><span class="tc">0.0–2.0 · 훅 · 1080p</span></div>
+      <div class="row"><b>화면</b><span>꽉 찬 옷장 문이 부풀어 오르며 삐걱. 로우 앵글 클로즈업.</span></div>
+      <div class="row"><b>VO</b><span class="vo">"옷장도… 숨이 막힙니다."</span></div>
+      <div class="row"><b>소리</b><span>딱·딱·뽁, 낮은 808 베이스만 깔림</span></div>
+      <a class="sheet" href="https://d8j0ntlcm91z4.cloudfront.net/user_3Ak2xk3c9sdDOp6qbeSVoReMzNp/hf_20260927_004526_a5a22935-34f5-4a02-901e-80c1d9f2122d.png" target="_blank" rel="noopener">스케치 1 보기</a></div>
+    <div class="shot"><div class="top"><span class="no">2</span><span class="tc">2.0–4.0 · 긴장</span></div>
+      <div class="row"><b>화면</b><span>문이 벌컥 열리고 이불이 슬로모션으로 쏟아짐.</span></div>
+      <div class="row"><b>VO</b><span class="vo">(없음)</span></div>
+      <div class="row"><b>소리</b><span>808 쿵, 음악 잠깐 멈춤</span></div>
+      <a class="sheet" href="https://d8j0ntlcm91z4.cloudfront.net/user_3Ak2xk3c9sdDOp6qbeSVoReMzNp/hf_20260927_004526_df186fc0-3705-4fc4-9b52-573ad28ea590.png" target="_blank" rel="noopener">스케치 2 보기</a></div>
+    <div class="shot"><div class="top"><span class="no">3</span><span class="tc">4.0–7.0 · 전환 · 제품 등장</span></div>
+      <div class="row"><b>화면</b><span>위에서 본 손. 이불을 압축팩에 넣고 지퍼를 닫음. <b>실제 상품 사진 참조.</b></span></div>
+      <div class="row"><b>VO</b><span class="vo">"넣고, 닫고,"</span></div>
+      <div class="row"><b>소리</b><span>뽁, 뽁 (단어마다), 드럼 전체 진입</span></div>
+      <a class="sheet" href="https://d8j0ntlcm91z4.cloudfront.net/user_3Ak2xk3c9sdDOp6qbeSVoReMzNp/hf_20260927_004526_e4b5abbb-a0d8-4f80-95d4-641cf8b4dfbb.png" target="_blank" rel="noopener">스케치 3 보기</a></div>
+    <div class="shot"><div class="top"><span class="no">4</span><span class="tc">7.0–10.0 · 증명</span></div>
+      <div class="row"><b>화면</b><span>매크로. 압축팩이 납작해지는 순간. <b>실제 상품 사진 참조.</b></span></div>
+      <div class="row"><b>VO</b><span class="vo">"공기만 빼면—"</span></div>
+      <div class="row"><b>소리</b><span>쉭(공기 빠짐) → 808 쿵</span></div>
+      <a class="sheet" href="https://d8j0ntlcm91z4.cloudfront.net/user_3Ak2xk3c9sdDOp6qbeSVoReMzNp/hf_20260927_004525_4295523b-756a-4ebd-a86e-7b7ec33e1292.png" target="_blank" rel="noopener">스케치 4 보기</a></div>
+    <div class="shot"><div class="top"><span class="no">5</span><span class="tc">10.0–12.5 · 해방</span></div>
+      <div class="row"><b>화면</b><span>여유 공간이 생긴 선반, 문이 부드럽게 닫힘.</span></div>
+      <div class="row"><b>VO</b><span class="vo">"이제, 옷장이 숨을 쉽니다."</span></div>
+      <div class="row"><b>소리</b><span>부드러운 휙, 숨 내쉬는 듯한 여운</span></div>
+      <a class="sheet" href="https://d8j0ntlcm91z4.cloudfront.net/user_3Ak2xk3c9sdDOp6qbeSVoReMzNp/hf_20260927_004526_894ebab2-2a04-4b02-a989-62103dafacd0.png" target="_blank" rel="noopener">스케치 5 보기</a></div>
+    <div class="shot"><div class="top"><span class="no">6</span><span class="tc">12.5–15.0 · 제품 컷</span></div>
+      <div class="row"><b>화면</b><span><b>실제 상품 사진</b>을 밝은 배경에 올리고 천천히 확대. 위에 슬로건, 아래에 "프로필 링크 1번".</span></div>
+      <div class="row"><b>VO</b><span class="vo">"공간은 줄이고, 여유는 늘리고. 3초템."</span></div>
+      <div class="row"><b>소리</b><span>사운드 로고 (딱·딱·뽁 + 차임)</span></div>
+      <a class="sheet" href="https://d8j0ntlcm91z4.cloudfront.net/user_3Ak2xk3c9sdDOp6qbeSVoReMzNp/hf_20260927_004533_572d2067-6af5-40c2-bd2d-46c351f70da0.png" target="_blank" rel="noopener">스케치 6 보기</a></div>
+  </div>
+  <p class="muted">화면 상단에는 광고 표기 문구가 끝까지 고정됩니다.</p>
+</section>
+
+<section style="display:grid;gap:12px">
+  <span class="eyebrow">제작 계획</span>
+  <h2>예상 비용</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>방식</th><th>크레딧</th></tr></thead>
+    <tbody>
+      <tr><td>컷 1 (훅)</td><td>Seedance 2.5, 1080p, 4초</td><td class="mono">48</td></tr>
+      <tr><td>컷 2–5</td><td>Seedance 2.5, 720p, 4초 × 4 (컷 3·4는 실제 상품 사진 참조)</td><td class="mono">112</td></tr>
+      <tr><td>컷 6 (제품 컷)</td><td>실제 사진 + ffmpeg 합성</td><td class="mono">0</td></tr>
+      <tr><td>나레이션</td><td>ElevenLabs 2–3테이크 비교</td><td class="mono">약 1</td></tr>
+      <tr><td>음악·효과음·사운드 로고</td><td>sound.py 직접 합성 (트랩 스타일)</td><td class="mono">0</td></tr>
+      <tr><td><b>합계</b></td><td>잔액 약 630</td><td class="mono"><b>약 161</b></td></tr>
+    </tbody></table></div>
+  <p class="muted">납품: 15초 본편 · 6초 요약본(컷 1, 4, 6) · 자막 없는 버전.</p>
+</section>
+
+<section class="need">
+  <span class="eyebrow">제작 전에 필요한 것</span>
+  <b>실제 상품 사진 1장 이상</b>
+  <span class="muted">상품 페이지 대표 사진을 캡처하거나 이미지 주소를 복사해 주세요. 컷 3·4와 제품 컷이 이 사진을 기준으로 만들어집니다. 사진 없이 만들면 실제 상품과 다른 모양이 나와 소비자가 오인할 수 있어서 진행하지 않습니다.</span>
+</section>
+</div>
