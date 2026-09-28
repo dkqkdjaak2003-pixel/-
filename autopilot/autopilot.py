@@ -12,6 +12,7 @@ Usage (from the repository root):
   python3 autopilot/autopilot.py reject <job> [reason]
   python3 autopilot/autopilot.py report           # pull insights + commission, update learnings
   python3 autopilot/autopilot.py linkpage         # rebuild the link-in-bio page
+  python3 autopilot/autopilot.py telegram         # Telegram bot: alerts, approve buttons, /status /run
 
 Every job lives in shorts/<job>/ with job.json holding its stage, so a crashed or
 interrupted run resumes where it stopped on the next `run`.
@@ -33,6 +34,8 @@ import coupang_partners as cp  # noqa: E402
 import instagram_publish as ig  # noqa: E402
 import youtube_publish as yt  # noqa: E402
 import tiktok_publish as tt  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, "autopilot"))
+import telegram_bot as tg  # noqa: E402
 
 SHORTS = os.path.join(ROOT, "shorts")
 CONFIG = os.path.join(ROOT, "autopilot", "config.json")
@@ -77,11 +80,21 @@ def log(msg):
         f.write(line + "\n")
 
 
-def notify(cfg, msg):
+def notify(cfg, msg, video=None, job_id=None):
+    """Log, run notify_cmd, and send to Telegram (with the video and approve buttons when given)."""
     log("NOTIFY " + msg)
     cmd = cfg.get("notify_cmd")
     if cmd:
         subprocess.run(cmd, shell=True, env={**os.environ, "MESSAGE": msg}, check=False)
+    if tg.enabled():
+        try:
+            markup = tg.buttons(job_id) if job_id else None
+            if video:
+                tg.send_video(video, msg, markup)
+            else:
+                tg.send(msg, markup=markup)
+        except Exception as e:  # noqa: BLE001 - an alert failure must not stop the pipeline
+            log(f"telegram failed: {e}")
 
 
 def jobs():
@@ -330,8 +343,10 @@ def publish(cfg, job, approved=False):
         save_job(job)
     if cfg["publish_mode"] != "auto" and not job.get("approved"):
         set_stage(job, "awaiting_approval")
-        notify(cfg, f"{job['id']} 검수 대기: shorts/{job['id']}/final.mp4 확인 후 "
-                    f"`python3 autopilot/autopilot.py approve {job['id']}`")
+        p = job.get("product", {})
+        notify(cfg, f"🎬 {job['id']} 검수 대기\n{(p.get('productName') or '')[:60]}\n"
+                    f"승인: 아래 버튼 또는 /approve {job['id']}",
+               video=os.path.join(job_dir(job), "final.mp4"), job_id=job["id"])
         return
     todo = [pf for pf in platforms(cfg) if pf not in job.get("posts", {})]
     if todo and not job.get("posts") and posted_today() >= cfg["max_posts_per_day"]:
@@ -366,7 +381,7 @@ def publish(cfg, job, approved=False):
                     # TikTok requires the creator's explicit consent per post: never in auto mode
                     if not job.get("approved"):
                         notify(cfg, f"{job['id']} 틱톡 직접 게시는 승인 후에만 합니다: "
-                                    f"`python3 autopilot/autopilot.py approve {job['id']}`")
+                                    f"/approve {job['id']}", job_id=job["id"])
                         continue
                     res = tt.direct(video, caption, tc.get("privacy", "PUBLIC_TO_EVERYONE"),
                                     aigc=cfg["footage_mode"] == "higgsfield")
@@ -551,17 +566,15 @@ def find(job_id):
 
 
 def main():
-    if len(sys.argv) < 2 or sys.argv[1] not in ("run", "status", "approve", "reject", "report", "linkpage"):
+    if len(sys.argv) < 2 or sys.argv[1] not in ("run", "status", "approve", "reject", "report", "linkpage",
+                                                 "telegram"):
         sys.exit(__doc__)
     cfg = config()
     cmd = sys.argv[1]
     if cmd == "run":
         run(cfg)
     elif cmd == "status":
-        for j in jobs():
-            p = j.get("product", {})
-            done = ",".join(j.get("posts", {}))
-            print(f"{j['id']:14} {j['stage']:18} {p.get('link_no', ''):>4} {done:18} {(p.get('productName') or '')[:36]}")
+        print(status_text())
     elif cmd == "approve":
         j = find(sys.argv[2])
         if j["stage"] != "awaiting_approval":
@@ -576,6 +589,70 @@ def main():
         report(cfg)
     elif cmd == "linkpage":
         linkpage(cfg)
+    elif cmd == "telegram":
+        telegram(cfg, once="--once" in sys.argv)
+
+
+def status_text():
+    rows = []
+    for j in jobs():
+        p = j.get("product", {})
+        done = ",".join(j.get("posts", {}))
+        rows.append(f"{j['id']:14} {j['stage']:18} {p.get('link_no', ''):>4} {done:18} "
+                    f"{(p.get('productName') or '')[:36]}")
+    return "\n".join(rows) or "작업 없음"
+
+
+TG_HELP = """명령어
+/status — 작업 목록과 단계
+/approve <작업ID> — 승인하고 게시
+/reject <작업ID> [사유] — 반려
+/run — 한 사이클 실행 (소싱→제작→검수 대기)
+/report — 성과·수수료 집계
+/help — 이 도움말"""
+
+
+def telegram(cfg, once=False):
+    """Serve the Telegram bot. Long jobs run as background processes; they report back via notify()."""
+    if not tg.enabled():
+        sys.exit("set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in autopilot/.env")
+    me = os.path.abspath(__file__)
+
+    def spawn(*args):
+        subprocess.Popen([sys.executable, me, *args], cwd=ROOT, start_new_session=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    def handle(kind, data, chat, update):
+        if kind == "button":
+            action, _, job_id = data.partition(":")
+            args = [job_id]
+        else:
+            parts = data.split()
+            action, args = parts[0].lstrip("/").split("@")[0], parts[1:]
+        if action in ("start", "help"):
+            return TG_HELP
+        if action == "status":
+            return status_text()
+        if action in ("approve", "reject"):
+            if not args:
+                return f"/{action} <작업ID>"
+            j = load(os.path.join(SHORTS, args[0], "job.json"))
+            if not j:
+                return f"작업 {args[0]} 없음"
+            if j["stage"] != "awaiting_approval":
+                return f"{j['id']}는 지금 {j['stage']} 단계라 {action} 할 수 없습니다"
+            if action == "reject":
+                set_stage(j, "rejected", " ".join(args[1:]) or "telegram")
+                return f"❌ {j['id']} 반려"
+            spawn("approve", j["id"])
+            return f"✅ {j['id']} 승인 — 게시를 시작합니다. 끝나면 알려드릴게요."
+        if action in ("run", "report"):
+            spawn(action)
+            return f"▶️ {action} 시작. 결과는 알림으로 옵니다."
+        return "모르는 명령입니다. /help"
+
+    log("telegram bot polling")
+    tg.poll(handle, once=once)
 
 
 # ---------- prompts ----------

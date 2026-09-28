@@ -46,6 +46,7 @@
 - 쿠팡 스크립트에 subId·리포트 조회, 인스타 스크립트에 인사이트 조회 추가
 - 유튜브 쇼츠 자동 업로드 `scripts/youtube_publish.py` (OAuth 데스크톱 인증, 재개 가능 업로드, 유료 프로모션·AI 합성 표시, 통계 조회), 오토파일럿에 플랫폼별 게시·재시도·성과 합산 연동. 설정법 `references/youtube-setup.md`
 - 틱톡 `scripts/tiktok_publish.py` (초안함 업로드 기본 / 승인 후 직접 게시, 브랜디드 콘텐츠·AI 표시, 토큰 자동 갱신, 분할 업로드), 오토파일럿 연동. 설정법 `references/tiktok-setup.md`
+- 텔레그램 봇 `autopilot/telegram_bot.py` + `autopilot.py telegram`: 검수 대기 영상을 승인/반려 버튼과 함께 전송, 게시 완료·오류 알림, `/status /approve /reject /run /report` 명령. 등록된 chat id만 조작 가능. 모의 서버로 전체 흐름 테스트 (이 클라우드 환경은 api.telegram.org 접속이 막혀 실제 봇 연결은 사용자 PC에서 확인 필요). 설정법 `autopilot/README.md`
 
 ## 광고 제작 (5차 작업)
 

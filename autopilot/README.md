@@ -50,6 +50,24 @@ GitHub 저장소 Settings → Pages → Branch 의 `/docs` 폴더로 배포하�
 - 알림: `notify_cmd` 에 셸 명령을 넣으면 `$MESSAGE` 로 전달됩니다. 예) ntfy.sh 앱:
   `"notify_cmd": "curl -s -d \"$MESSAGE\" https://ntfy.sh/<내 토픽>"`
 
+## 텔레그램 연결 (알림 + 폰에서 승인)
+검수 대기 영상이 텔레그램으로 오고, 버튼 하나로 승인(게시)하거나 반려합니다.
+
+1. 텔레그램에서 **@BotFather** → `/newbot` → 봇 이름과 아이디(끝이 `bot`)를 정하면 토큰을 줍니다.
+2. `autopilot/.env` 에 `TELEGRAM_BOT_TOKEN=<토큰>` 을 넣습니다.
+3. 만든 봇을 열어 **시작(Start)** 을 누르고, PC에서:
+   `set -a; . autopilot/.env; set +a; python3 autopilot/telegram_bot.py chatid`
+   → 나온 `TELEGRAM_CHAT_ID=...` 를 `.env` 에 넣습니다. (이 채팅만 봇을 조작할 수 있습니다)
+4. 확인: `... python3 autopilot/telegram_bot.py test` → "연결 완료" 메시지가 오면 성공.
+5. 봇 상시 실행: `autopilot/run_daily.sh telegram` (PC가 켜져 있는 동안, cron `@reboot` 예시는 run_daily.sh 참고)
+
+받는 것: 검수 대기(영상 + ✅승인/❌반려 버튼), 게시 완료, 오류·한도 알림.
+보내는 명령: `/status` `/approve <작업ID>` `/reject <작업ID> [사유]` `/run` `/report` `/help`
+
+참고(텔레그램 Bot API 문서 https://core.telegram.org/bots/api): 봇이 올릴 수 있는 파일은 50MB까지
+(넘으면 글 알림만 보냄), 캡션 1024자, 메시지 4096자. 웹훅을 설정한 봇은 이 방식(getUpdates)과 함께 쓸 수 없습니다.
+토큰은 비밀번호와 같으니 공유하지 마세요 — 새 나가면 @BotFather `/revoke` 로 바꿉니다.
+
 ## 비용·한도
 - Claude Code 사용량(구독 또는 API), Higgsfield 크레딧(영상 1개당 장면 수만큼 생성).
 - 쿠팡 검색 API는 시간당 약 10회 → 실행 1회당 검색 1회만 호출, 6시간 캐시.
